@@ -2,7 +2,7 @@
   "name": "ItemSpawnerEnhanced",
   "version_number": "1.0.0",
   "website_url": "https://github.com/llleixx/ItemSpawnerEnhanced",
-  "description": "A multilingual item spawner with smart search, pinyin support, and selectable player targets.",
+  "description": "A client-side item spawner for PEAK built for players across every supported game language, with localized smart search, spectator-aware targeting, and support for spawning items for any connected Scout.",
   "dependencies": [
     "BepInEx-BepInExPack_PEAK-5.4.75301"
   ]
