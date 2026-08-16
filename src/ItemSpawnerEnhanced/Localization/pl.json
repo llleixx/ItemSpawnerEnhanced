@@ -1,0 +1,10 @@
+{
+  "title": "Generator przedmiotów",
+  "searchPlaceholder": "Szukaj przedmiotów...",
+  "smartTarget": "Inteligentny cel",
+  "youSuffix": "(Ty)",
+  "noTarget": "Brak dostępnego celu",
+  "notConnected": "Brak połączenia z grą",
+  "spawnFailed": "Nie udało się utworzyć przedmiotu",
+  "noItems": "Nie znaleziono przedmiotów"
+}

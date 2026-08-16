@@ -1,0 +1,10 @@
+{
+  "title": "Gerador de itens",
+  "searchPlaceholder": "Pesquisar itens...",
+  "smartTarget": "Alvo inteligente",
+  "youSuffix": "(Você)",
+  "noTarget": "Nenhum alvo disponível",
+  "notConnected": "Sem conexão com uma partida",
+  "spawnFailed": "Não foi possível gerar o item",
+  "noItems": "Nenhum item encontrado"
+}

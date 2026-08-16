@@ -1,0 +1,10 @@
+{
+  "title": "Generatore di oggetti",
+  "searchPlaceholder": "Cerca oggetti...",
+  "smartTarget": "Bersaglio intelligente",
+  "youSuffix": "(Tu)",
+  "noTarget": "Nessun bersaglio disponibile",
+  "notConnected": "Non connesso a una partita",
+  "spawnFailed": "Impossibile generare l'oggetto",
+  "noItems": "Nessun oggetto trovato"
+}

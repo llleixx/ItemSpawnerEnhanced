@@ -1,0 +1,10 @@
+{
+  "title": "Gegenstandsgenerator",
+  "searchPlaceholder": "Gegenstände suchen...",
+  "smartTarget": "Intelligentes Ziel",
+  "youSuffix": "(Du)",
+  "noTarget": "Kein Ziel verfügbar",
+  "notConnected": "Mit keinem Spiel verbunden",
+  "spawnFailed": "Gegenstand konnte nicht erzeugt werden",
+  "noItems": "Keine Gegenstände gefunden"
+}

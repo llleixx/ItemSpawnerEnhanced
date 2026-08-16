@@ -1,0 +1,10 @@
+{
+  "title": "Générateur d'objets",
+  "searchPlaceholder": "Rechercher des objets...",
+  "smartTarget": "Cible intelligente",
+  "youSuffix": "(Vous)",
+  "noTarget": "Aucune cible disponible",
+  "notConnected": "Aucune partie connectée",
+  "spawnFailed": "Impossible de créer l'objet",
+  "noItems": "Aucun objet trouvé"
+}

@@ -1,0 +1,10 @@
+{
+  "title": "Generador de objetos",
+  "searchPlaceholder": "Buscar objetos...",
+  "smartTarget": "Objetivo inteligente",
+  "youSuffix": "(Tú)",
+  "noTarget": "No hay un objetivo disponible",
+  "notConnected": "No tienes conexión a una partida",
+  "spawnFailed": "No se pudo generar el objeto",
+  "noItems": "No se encontraron objetos"
+}

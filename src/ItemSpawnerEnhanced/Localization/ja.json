@@ -1,0 +1,10 @@
+{
+  "title": "アイテム生成",
+  "searchPlaceholder": "アイテムを検索...",
+  "smartTarget": "スマートターゲット",
+  "youSuffix": "（自分）",
+  "noTarget": "対象がいません",
+  "notConnected": "ゲームに接続されていません",
+  "spawnFailed": "アイテムを生成できませんでした",
+  "noItems": "アイテムが見つかりません"
+}

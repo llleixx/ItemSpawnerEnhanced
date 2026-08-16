@@ -1,0 +1,10 @@
+{
+  "title": "物品生成器",
+  "searchPlaceholder": "搜索物品...",
+  "smartTarget": "智能目标",
+  "youSuffix": "（你）",
+  "noTarget": "没有可用目标",
+  "notConnected": "尚未连接到游戏",
+  "spawnFailed": "无法生成物品",
+  "noItems": "未找到物品"
+}

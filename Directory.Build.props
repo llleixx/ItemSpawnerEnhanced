@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <PeakGameDir Condition="'$(PeakGameDir)' == '' and '$(PEAK_GAME_DIR)' != ''">$(PEAK_GAME_DIR)</PeakGameDir>
+  </PropertyGroup>
+  <Import Project="PeakGameDir.props" Condition="Exists('PeakGameDir.props')" />
+</Project>
+

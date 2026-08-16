@@ -1,0 +1,10 @@
+{
+  "title": "Eşya oluşturucu",
+  "searchPlaceholder": "Eşya ara...",
+  "smartTarget": "Akıllı hedef",
+  "youSuffix": "(Sen)",
+  "noTarget": "Kullanılabilir hedef yok",
+  "notConnected": "Bir oyuna bağlı değilsin",
+  "spawnFailed": "Eşya oluşturulamadı",
+  "noItems": "Eşya bulunamadı"
+}

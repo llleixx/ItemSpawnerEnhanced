@@ -1,0 +1,10 @@
+{
+  "title": "Item Spawner",
+  "searchPlaceholder": "Search items...",
+  "smartTarget": "Smart target",
+  "youSuffix": "(You)",
+  "noTarget": "No target available",
+  "notConnected": "Not connected to a game",
+  "spawnFailed": "Could not spawn item",
+  "noItems": "No items found"
+}
