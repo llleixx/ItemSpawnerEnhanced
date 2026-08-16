@@ -1,9 +1,8 @@
 using System.Linq;
 using ItemSpawnerEnhanced.Api;
-using ItemSpawnerEnhanced.Core;
 using NUnit.Framework;
 
-namespace ItemSpawnerEnhanced.Core.Tests;
+namespace ItemSpawnerEnhanced.ChineseSearch.Tests;
 
 public sealed class ChinesePinyinAliasProviderTests
 {
@@ -20,6 +19,19 @@ public sealed class ChinesePinyinAliasProviderTests
         Assert.That(aliases, Does.Contain("jjb"));
     }
 
+    [Test]
+    public void Provider_TransliteratesTraditionalChinese()
+    {
+        var provider = new ChinesePinyinAliasProvider();
+        var context = new SearchAliasContext("Bandage", "Bandage", "繃帶", "Bandage", "zh-Hant");
+
+        string[] aliases = provider.GetAliases(context).ToArray();
+
+        Assert.That(aliases, Does.Contain("beng dai"));
+        Assert.That(aliases, Does.Contain("bengdai"));
+        Assert.That(aliases, Does.Contain("bd"));
+    }
+
     [TestCase("zh-Hans", true)]
     [TestCase("zh-Hant", true)]
     [TestCase("ja", false)]
@@ -28,4 +40,3 @@ public sealed class ChinesePinyinAliasProviderTests
         Assert.That(new ChinesePinyinAliasProvider().SupportsLanguage(language), Is.EqualTo(expected));
     }
 }
-

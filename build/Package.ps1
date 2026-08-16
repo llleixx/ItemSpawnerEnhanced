@@ -6,12 +6,14 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$project = Join-Path $projectRoot 'src\ItemSpawnerEnhanced\ItemSpawnerEnhanced.csproj'
-$outputDir = Join-Path $projectRoot "src\ItemSpawnerEnhanced\bin\$Configuration"
+$coreProject = Join-Path $projectRoot 'src\ItemSpawnerEnhanced\ItemSpawnerEnhanced.csproj'
+$chineseProject = Join-Path $projectRoot 'src\ItemSpawnerEnhanced.ChineseSearch\ItemSpawnerEnhanced.ChineseSearch.csproj'
+$coreOutputDir = Join-Path $projectRoot "src\ItemSpawnerEnhanced\bin\$Configuration"
+$chineseOutputDir = Join-Path $projectRoot "src\ItemSpawnerEnhanced.ChineseSearch\bin\$Configuration"
 $artifactDir = Join-Path $projectRoot 'artifacts'
 $manifestPath = Join-Path $projectRoot 'manifest.json'
 
-$propertiesOutput = (& dotnet msbuild $project -nologo `
+$propertiesOutput = (& dotnet msbuild $coreProject -nologo `
     -getProperty:Version `
     -getProperty:ThunderstoreAuthor `
     -getProperty:ThunderstorePackageName) -join [Environment]::NewLine
@@ -32,20 +34,22 @@ if ($manifest.dependencies -contains 'Hamunii-AutoHookGenPatcher-1.0.7') {
 }
 
 if (-not $SkipBuild) {
-    & dotnet build $project -c $Configuration --nologo
+    & dotnet build $chineseProject -c $Configuration --nologo
     if ($LASTEXITCODE -ne 0) { throw 'ItemSpawnerEnhanced build failed.' }
 }
 
-$pluginAssembly = Join-Path $outputDir 'ItemSpawnerEnhanced.dll'
-$pinyinAssembly = Join-Path $outputDir 'TinyPinyin.dll'
-foreach ($required in @($pluginAssembly, $pinyinAssembly)) {
+$coreAssembly = Join-Path $coreOutputDir 'ItemSpawnerEnhanced.dll'
+$chineseAssembly = Join-Path $chineseOutputDir 'ItemSpawnerEnhanced.ChineseSearch.dll'
+foreach ($required in @($coreAssembly, $chineseAssembly)) {
     if (-not (Test-Path -LiteralPath $required)) { throw "Required output was not found: $required" }
 }
 
 $expectedAssemblyVersion = [Version]::Parse("$version.0")
-$actualAssemblyVersion = [System.Reflection.AssemblyName]::GetAssemblyName($pluginAssembly).Version
-if ($actualAssemblyVersion -ne $expectedAssemblyVersion) {
-    throw "DLL assembly version '$actualAssemblyVersion' does not match '$expectedAssemblyVersion'."
+foreach ($ownedAssembly in @($coreAssembly, $chineseAssembly)) {
+    $actualAssemblyVersion = [System.Reflection.AssemblyName]::GetAssemblyName($ownedAssembly).Version
+    if ($actualAssemblyVersion -ne $expectedAssemblyVersion) {
+        throw "DLL assembly version '$actualAssemblyVersion' does not match '$expectedAssemblyVersion': $ownedAssembly"
+    }
 }
 
 $icon = Join-Path $projectRoot 'icon.png'
@@ -77,7 +81,7 @@ New-Item -ItemType Directory -Path $pluginDir -Force | Out-Null
 foreach ($file in @('manifest.json', 'icon.png', 'README.md', 'CHANGELOG.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md')) {
     Copy-Item -LiteralPath (Join-Path $projectRoot $file) -Destination $stageDir
 }
-Copy-Item -LiteralPath $pluginAssembly, $pinyinAssembly -Destination $pluginDir
+Copy-Item -LiteralPath $coreAssembly, $chineseAssembly -Destination $pluginDir
 
 if (Test-Path -LiteralPath $archive) { Remove-Item -LiteralPath $archive -Force }
 Compress-Archive -Path (Join-Path $stageDir '*') -DestinationPath $archive -CompressionLevel Optimal
@@ -89,7 +93,7 @@ try {
         ForEach-Object { $_.FullName.Replace('\', '/') } | Sort-Object)
     $expected = @(
         'plugins/ItemSpawnerEnhanced/ItemSpawnerEnhanced.dll',
-        'plugins/ItemSpawnerEnhanced/TinyPinyin.dll',
+        'plugins/ItemSpawnerEnhanced/ItemSpawnerEnhanced.ChineseSearch.dll',
         'CHANGELOG.md', 'LICENSE', 'README.md', 'THIRD_PARTY_NOTICES.md',
         'icon.png', 'manifest.json'
     ) | Sort-Object

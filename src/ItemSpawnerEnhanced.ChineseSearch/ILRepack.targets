@@ -1,0 +1,22 @@
+<Project>
+  <Target Name="MergeTinyPinyin" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)' != 'true'">
+    <ItemGroup>
+      <_ChineseSearchMergeInput Include="$(TargetPath)" />
+      <_ChineseSearchMergeInput Include="$(TargetDir)TinyPinyin.dll" />
+      <_ChineseSearchMergeLibrary Include="$(TargetDir)" />
+      <_ChineseSearchMergeLibrary Include="$(BepInExCoreDir)" />
+      <_ChineseSearchMergeLibrary Include="$(ManagedDir)" />
+    </ItemGroup>
+
+    <Error Condition="!Exists('$(TargetDir)TinyPinyin.dll')" Text="TinyPinyin.dll was not found for assembly merging." />
+    <ILRepack
+      DebugInfo="true"
+      InputAssemblies="@(_ChineseSearchMergeInput)"
+      Internalize="true"
+      LibraryPath="@(_ChineseSearchMergeLibrary)"
+      OutputFile="$(TargetPath)"
+      Parallel="true"
+      TargetKind="Dll" />
+    <Delete Files="$(TargetDir)TinyPinyin.dll" />
+  </Target>
+</Project>

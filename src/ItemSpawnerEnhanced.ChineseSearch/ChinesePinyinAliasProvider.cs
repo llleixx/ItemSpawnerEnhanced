@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ItemSpawnerEnhanced.Api;
 using TinyPinyin;
 
-namespace ItemSpawnerEnhanced.Core;
+namespace ItemSpawnerEnhanced.ChineseSearch;
 
 internal sealed class ChinesePinyinAliasProvider : ISearchAliasProvider
 {

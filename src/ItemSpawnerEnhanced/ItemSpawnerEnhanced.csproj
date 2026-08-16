@@ -3,23 +3,12 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>ItemSpawnerEnhanced</AssemblyName>
     <RootNamespace>ItemSpawnerEnhanced</RootNamespace>
-    <Version>1.0.0</Version>
     <ThunderstoreAuthor>lllei</ThunderstoreAuthor>
     <ThunderstorePackageName>ItemSpawnerEnhanced</ThunderstorePackageName>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <DebugType>portable</DebugType>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
-
-  <PropertyGroup>
-    <ManagedDir>$(PeakGameDir)\PEAK_Data\Managed</ManagedDir>
-    <BepInExCoreDir>$(PeakGameDir)\BepInEx\core</BepInExCoreDir>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="TinyPinyin" Version="1.1.0" />
-  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="Assembly-CSharp" HintPath="$(ManagedDir)\Assembly-CSharp.dll" Private="false" />
@@ -33,7 +22,6 @@
     <Reference Include="UnityEngine.InputSystem" HintPath="$(ManagedDir)\Unity.InputSystem.dll" Private="false" />
     <Reference Include="Unity.TextMeshPro" HintPath="$(ManagedDir)\Unity.TextMeshPro.dll" Private="false" />
     <Reference Include="PhotonUnityNetworking" HintPath="$(ManagedDir)\PhotonUnityNetworking.dll" Private="false" />
-    <Reference Include="PhotonRealtime" HintPath="$(ManagedDir)\PhotonRealtime.dll" Private="false" />
     <Reference Include="Zorro.Core.Runtime" HintPath="$(ManagedDir)\Zorro.Core.Runtime.dll" Private="false" />
     <Reference Include="Newtonsoft.Json" HintPath="$(ManagedDir)\Newtonsoft.Json.dll" Private="false" />
   </ItemGroup>
@@ -57,12 +45,4 @@
     <WriteLinesToFile File="$(IntermediateOutputPath)BuildInfo.g.cs" Lines="@(_BuildInfoLine)" Overwrite="true" WriteOnlyWhenDifferent="true" />
   </Target>
 
-  <Target Name="Deploy" DependsOnTargets="Build">
-    <PropertyGroup>
-      <DeployDir>$(PeakGameDir)\BepInEx\plugins\ItemSpawnerEnhanced</DeployDir>
-    </PropertyGroup>
-    <MakeDir Directories="$(DeployDir)" />
-    <Copy SourceFiles="$(TargetPath);$(TargetDir)TinyPinyin.dll" DestinationFolder="$(DeployDir)" />
-    <Message Importance="high" Text="Deployed ItemSpawnerEnhanced to $(DeployDir)" />
-  </Target>
 </Project>

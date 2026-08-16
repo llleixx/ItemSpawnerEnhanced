@@ -33,6 +33,8 @@ internal sealed class SearchIndex<T>
         _entries = values.Select((value, order) => new Entry(value.Value, order, value.Aliases)).ToList();
     }
 
+    private SearchIndex(List<Entry> entries) => _entries = entries;
+
     public IReadOnlyList<T> Search(string? query)
     {
         string spacedQuery = SearchNormalizer.Normalize(query, keepSpaces: true);
@@ -111,5 +113,14 @@ internal sealed class SearchIndex<T>
             return distance <= maximumDistance ? 3_000 + Boost - distance * 300 : -1;
         }
     }
-}
 
+    internal sealed class Builder
+    {
+        private readonly List<Entry> _entries = new();
+
+        public void Add(T value, IEnumerable<SearchAliasValue> aliases) =>
+            _entries.Add(new Entry(value, _entries.Count, aliases));
+
+        public SearchIndex<T> Build() => new(_entries.ToList());
+    }
+}

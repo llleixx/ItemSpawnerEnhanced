@@ -1,21 +1,20 @@
 using BepInEx.Configuration;
-using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace ItemSpawnerEnhanced;
 
 internal sealed class ModConfig
 {
-    private readonly ConfigEntry<KeyCode> _toggleKey;
+    private readonly ConfigEntry<Key> _toggleKey;
 
     public ModConfig(ConfigFile config)
     {
         _toggleKey = config.Bind(
             "General",
             "ToggleKey",
-            KeyCode.F5,
-            "The key used to open and close the item spawner.");
+            Key.F5,
+            "The keyboard key used to open and close the item spawner.");
     }
 
-    public KeyCode ToggleKey => _toggleKey.Value;
+    public Key ToggleKey => _toggleKey.Value;
 }
-

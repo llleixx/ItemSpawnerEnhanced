@@ -35,13 +35,6 @@ internal static class RuntimeUiFactory
         rect.offsetMax = new Vector2(-right, -top);
     }
 
-    public static Image AddBackground(GameObject gameObject, Color color)
-    {
-        Image image = gameObject.GetComponent<Image>() ?? gameObject.AddComponent<Image>();
-        image.color = color;
-        return image;
-    }
-
     public static TextMeshProUGUI CreateText(
         string name,
         Transform parent,
@@ -66,8 +59,7 @@ internal static class RuntimeUiFactory
         string name,
         Transform parent,
         TMP_FontAsset font,
-        string label,
-        UnityAction onClick)
+        string label)
     {
         RectTransform rect = CreateRect(name, parent, typeof(Image), typeof(Button));
         Image image = rect.GetComponent<Image>();
@@ -75,7 +67,6 @@ internal static class RuntimeUiFactory
         Button button = rect.GetComponent<Button>();
         button.targetGraphic = image;
         button.colors = ButtonColors();
-        button.onClick.AddListener(onClick);
 
         TextMeshProUGUI text = CreateText("Label", rect, font, 25, TextPrimary, TextAlignmentOptions.Center);
         text.text = label;

@@ -3,9 +3,13 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <Deterministic>true</Deterministic>
+    <Version>1.0.0</Version>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
     <PeakGameDir Condition="'$(PeakGameDir)' == '' and '$(PEAK_GAME_DIR)' != ''">$(PEAK_GAME_DIR)</PeakGameDir>
   </PropertyGroup>
   <Import Project="PeakGameDir.props" Condition="Exists('PeakGameDir.props')" />
+  <PropertyGroup>
+    <ManagedDir>$(PeakGameDir)\PEAK_Data\Managed</ManagedDir>
+    <BepInExCoreDir>$(PeakGameDir)\BepInEx\core</BepInExCoreDir>
+  </PropertyGroup>
 </Project>
-

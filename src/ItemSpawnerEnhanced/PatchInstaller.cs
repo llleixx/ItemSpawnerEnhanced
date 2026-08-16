@@ -28,5 +28,5 @@ internal static class PatchInstaller
 
 internal static class PatchCallbacks
 {
-    public static void GuiManagerStartPostfix(GUIManager __instance) => Plugin.Instance?.Attach(__instance);
+    public static void GuiManagerStartPostfix() => Plugin.Instance?.Attach();
 }

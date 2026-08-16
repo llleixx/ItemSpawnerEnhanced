@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="src/ItemSpawnerEnhanced/ItemSpawnerEnhanced.csproj" />
+  <Project Path="src/ItemSpawnerEnhanced.ChineseSearch/ItemSpawnerEnhanced.ChineseSearch.csproj" />
   <Project Path="tests/ItemSpawnerEnhanced.Core.Tests/ItemSpawnerEnhanced.Core.Tests.csproj" />
+  <Project Path="tests/ItemSpawnerEnhanced.ChineseSearch.Tests/ItemSpawnerEnhanced.ChineseSearch.Tests.csproj" />
 </Solution>
-

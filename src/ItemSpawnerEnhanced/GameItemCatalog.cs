@@ -26,45 +26,60 @@ internal sealed class GameItemCatalog
         return current.SequenceEqual(_sourceItems);
     }
 
-    public void Rebuild()
+    public void RebuildItems()
     {
-        IEnumerator rebuild = RebuildIncrementally(int.MaxValue);
-        while (rebuild.MoveNext())
+        Item[] sourceItems = ItemDatabase.Instance.Objects.Where(item => item != null).ToArray();
+        Items = sourceItems.Select(item =>
         {
-        }
+            string rawName = item.UIData?.itemName ?? item.name;
+            return new GameItemRecord(item, SafeLocalizedName(item, rawName));
+        }).ToArray();
+        _sourceItems = sourceItems;
+        _index = new SearchIndex<GameItemRecord>(Array.Empty<(GameItemRecord, IEnumerable<SearchAliasValue>)>());
     }
 
-    public IEnumerator RebuildIncrementally(int batchSize)
+    public IEnumerator RebuildSearchIndexIncrementally(int batchSize)
     {
         if (batchSize <= 0)
             throw new ArgumentOutOfRangeException(nameof(batchSize));
 
         string languageCode = GameLanguage.CurrentCode;
         IReadOnlyList<ISearchAliasProvider> providers = SearchAliasRegistry.Snapshot();
-        var indexed = new List<(GameItemRecord, IEnumerable<SearchAliasValue>)>();
-        Item[] sourceItems = ItemDatabase.Instance.Objects.Where(item => item != null).ToArray();
-
-        for (int itemIndex = 0; itemIndex < sourceItems.Length; itemIndex++)
+        var activeProviders = new List<ISearchAliasProvider>(providers.Count);
+        foreach (ISearchAliasProvider provider in providers)
         {
-            Item item = sourceItems[itemIndex];
+            try
+            {
+                if (provider.SupportsLanguage(languageCode))
+                    activeProviders.Add(provider);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Search alias provider '{provider.Id}' failed while checking language '{languageCode}': {exception}");
+            }
+        }
+
+        var indexBuilder = new SearchIndex<GameItemRecord>.Builder();
+
+        for (int itemIndex = 0; itemIndex < Items.Count; itemIndex++)
+        {
+            GameItemRecord record = Items[itemIndex];
+            Item item = record.Item;
             string rawName = item.UIData?.itemName ?? item.name;
-            string displayName = SafeLocalizedName(item, rawName);
             string englishName = SafeEnglishName(rawName);
-            var context = new SearchAliasContext(item.name, rawName, displayName, englishName, languageCode);
+            var context = new SearchAliasContext(item.name, rawName, record.DisplayName, englishName, languageCode);
             var aliases = new List<SearchAliasValue>
             {
-                new(displayName, SearchAliasPriority.Display),
+                new(record.DisplayName, SearchAliasPriority.Display),
                 new(englishName, SearchAliasPriority.English),
                 new(item.name, SearchAliasPriority.Internal),
                 new(rawName, SearchAliasPriority.Internal)
             };
 
-            foreach (ISearchAliasProvider provider in providers)
+            foreach (ISearchAliasProvider provider in activeProviders)
             {
                 try
                 {
-                    if (!provider.SupportsLanguage(languageCode))
-                        continue;
                     aliases.AddRange(provider.GetAliases(context)
                         .Where(alias => !string.IsNullOrWhiteSpace(alias))
                         .Select(alias => new SearchAliasValue(alias, SearchAliasPriority.Provider)));
@@ -75,14 +90,12 @@ internal sealed class GameItemCatalog
                 }
             }
 
-            indexed.Add((new GameItemRecord(item, displayName), aliases));
-            if ((itemIndex + 1) % batchSize == 0 && itemIndex + 1 < sourceItems.Length)
+            indexBuilder.Add(record, aliases);
+            if ((itemIndex + 1) % batchSize == 0 && itemIndex + 1 < Items.Count)
                 yield return null;
         }
 
-        Items = indexed.Select(entry => entry.Item1).ToArray();
-        _index = new SearchIndex<GameItemRecord>(indexed);
-        _sourceItems = sourceItems;
+        _index = indexBuilder.Build();
     }
 
     public IReadOnlyList<GameItemRecord> Search(string query) => _index.Search(query);

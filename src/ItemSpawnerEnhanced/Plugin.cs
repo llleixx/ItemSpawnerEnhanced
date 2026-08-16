@@ -1,9 +1,5 @@
-using System;
 using BepInEx;
-using BepInEx.Logging;
 using HarmonyLib;
-using ItemSpawnerEnhanced.Api;
-using ItemSpawnerEnhanced.Core;
 
 namespace ItemSpawnerEnhanced;
 
@@ -16,18 +12,15 @@ public sealed class Plugin : BaseUnityPlugin
     public const string OriginalPluginGuid = "com.quackandcheese.ItemSpawner";
 
     internal static Plugin? Instance { get; private set; }
-    internal static ManualLogSource Log => Instance!.Logger;
 
     private Harmony? _harmony;
     private ItemSpawnerController? _controller;
-    private IDisposable? _chineseProviderRegistration;
 
     private void Awake()
     {
         Instance = this;
         var settings = new ModConfig(Config);
         _controller = new ItemSpawnerController(settings, Logger);
-        _chineseProviderRegistration = SearchAliasRegistry.Register(new ChinesePinyinAliasProvider());
         _harmony = new Harmony(PluginGuid);
 
         if (!PatchInstaller.Install(_harmony, Logger))
@@ -38,14 +31,12 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void Update() => _controller?.Tick();
 
-    internal void Attach(GUIManager guiManager) => _controller?.Attach(guiManager);
+    internal void Attach() => _controller?.Attach();
 
     private void OnDestroy()
     {
         _controller?.Dispose();
-        _chineseProviderRegistration?.Dispose();
         _harmony?.UnpatchSelf();
         Instance = null;
     }
 }
-

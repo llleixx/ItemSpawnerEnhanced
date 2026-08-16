@@ -39,7 +39,28 @@ public sealed class SearchIndexTests
         Assert.That(index.Search(string.Empty), Is.EqualTo(new[] { "rope-cannon", "rope" }));
     }
 
-    private static SearchIndex<string> BuildIndex() => new(new[]
+    [Test]
+    public void IncrementalBuilder_MatchesConstructorResults()
+    {
+        var builder = new SearchIndex<string>.Builder();
+        foreach ((string value, IEnumerable<SearchAliasValue> aliases) in Entries())
+            builder.Add(value, aliases);
+
+        SearchIndex<string> expected = BuildIndex();
+        SearchIndex<string> actual = builder.Build();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(actual.Search(string.Empty), Is.EqualTo(expected.Search(string.Empty)));
+            Assert.That(actual.Search("rope"), Is.EqualTo(expected.Search("rope")));
+            Assert.That(actual.Search("ssq"), Is.EqualTo(expected.Search("ssq")));
+            Assert.That(actual.Search("ropw"), Is.EqualTo(expected.Search("ropw")));
+        });
+    }
+
+    private static SearchIndex<string> BuildIndex() => new(Entries());
+
+    private static IEnumerable<(string, IEnumerable<SearchAliasValue>)> Entries() => new[]
     {
         (
             "rope-cannon",
@@ -57,6 +78,5 @@ public sealed class SearchIndexTests
                 new SearchAliasValue("Rope", SearchAliasPriority.Display),
                 new SearchAliasValue("Rope", SearchAliasPriority.English)
             })
-    });
+    };
 }
-

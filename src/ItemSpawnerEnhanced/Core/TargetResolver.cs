@@ -1,42 +1,58 @@
 using System.Collections.Generic;
-using System.Linq;
 
 namespace ItemSpawnerEnhanced.Core;
 
 internal readonly struct TargetCandidate
 {
-    public TargetCandidate(int actorId, bool isLocal, bool isSpectated, bool isValid)
+    public TargetCandidate(
+        int actorId,
+        bool isLocal,
+        bool isSpectated,
+        bool isSelectable,
+        bool canReceiveItem)
     {
         ActorId = actorId;
         IsLocal = isLocal;
         IsSpectated = isSpectated;
-        IsValid = isValid;
+        IsSelectable = isSelectable;
+        CanReceiveItem = canReceiveItem;
     }
 
     public int ActorId { get; }
     public bool IsLocal { get; }
     public bool IsSpectated { get; }
-    public bool IsValid { get; }
+    public bool IsSelectable { get; }
+    public bool CanReceiveItem { get; }
 }
 
 internal static class TargetResolver
 {
-    public static int? Resolve(IReadOnlyList<TargetCandidate> candidates, int? manualActorId)
+    public static int? ResolveIndex(IReadOnlyList<TargetCandidate> candidates, int? manualActorId)
     {
         if (manualActorId.HasValue)
         {
-            TargetCandidate manual = candidates.FirstOrDefault(candidate =>
-                candidate.ActorId == manualActorId.Value && candidate.IsValid);
-            if (manual.IsValid)
-                return manual.ActorId;
+            for (int index = 0; index < candidates.Count; index++)
+            {
+                TargetCandidate candidate = candidates[index];
+                if (candidate.ActorId == manualActorId.Value && candidate.IsSelectable)
+                    return index;
+            }
         }
 
-        TargetCandidate spectated = candidates.FirstOrDefault(candidate => candidate.IsSpectated && candidate.IsValid);
-        if (spectated.IsValid)
-            return spectated.ActorId;
+        for (int index = 0; index < candidates.Count; index++)
+        {
+            TargetCandidate candidate = candidates[index];
+            if (candidate.IsSpectated && candidate.CanReceiveItem)
+                return index;
+        }
 
-        TargetCandidate local = candidates.FirstOrDefault(candidate => candidate.IsLocal && candidate.IsValid);
-        return local.IsValid ? local.ActorId : null;
+        for (int index = 0; index < candidates.Count; index++)
+        {
+            TargetCandidate candidate = candidates[index];
+            if (candidate.IsLocal && candidate.CanReceiveItem)
+                return index;
+        }
+
+        return null;
     }
 }
-

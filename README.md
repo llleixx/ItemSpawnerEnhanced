@@ -1,63 +1,70 @@
 # ItemSpawnerEnhanced
 
-A client-side PEAK item spawner with multilingual search, Chinese pinyin
-matching, spectator-aware targeting, and support for spawning items for any
-connected player.
+A client-side item spawner for PEAK built for players across **every supported game language**, with **localized smart search**, **spectator-aware targeting**, and support for spawning items for **any connected Scout**.
 
 ## Features
 
-- Press `F5` to open a responsive item browser.
-- Search the current language, English name, prefab name, or unlocalized name.
-- Match exact names, word prefixes, substrings, and small typing mistakes.
-- Search Simplified or Traditional Chinese with full pinyin or initials.
-- Use Smart Target to spawn for yourself while alive and for the currently
-  spectated player after death.
-- Select any initialized player in the room from the target dropdown.
-- Automatically discovers items added to PEAK's item database by other mods.
-- Includes localized UI text for every language currently supported by PEAK.
+### Core features
+
+- **Responsive item browser:** Press `F5` to open a clean interface with larger text and controls.
+- **Smart targeting:** Spawn for yourself while alive or automatically target the Scout you are spectating after death.
+- **Any Scout:** Select any available Scout in the room from the target dropdown.
+- **Modded item support:** Discover items registered in PEAK's item database, including items added by other mods.
+- **Fully localized UI:** Use interface text for every language currently supported by PEAK.
+- **Native multiplayer spawning:** Spawn through PEAK's built-in network RPC, with exactly one item created per click.
+
+### Search available in every language
+
+- **Multiple name sources:** Search by the current-language name, English name, internal/prefab name, or unlocalized source name.
+- **Flexible matching:** Find results by exact match, prefix, word prefix, or substring.
+- **Typo tolerance:** Find longer queries even with a small typing mistake.
+- **Relevant ranking:** See matches for the displayed name ahead of fallback aliases.
+
+### Language-specific search
+
+| Language | Implementation | Features |
+| --- | --- | --- |
+| 简体中文 | **随主 Mod 提供：**[`ItemSpawnerEnhanced.ChineseSearch.dll`](https://github.com/llleixx/ItemSpawnerEnhanced/tree/main/src/ItemSpawnerEnhanced.ChineseSearch)，借助 [`TinyPinyin`](https://github.com/hstarorg/TinyPinyin.Net) 实现 | 支持**空格全拼**（如 `sheng suo qiang`）、**连续全拼**（如 `shengsuoqiang`）和**拼音首字母**（如 `ssq`）搜索。 |
+| 繁體中文 | **隨主 Mod 提供：**[`ItemSpawnerEnhanced.ChineseSearch.dll`](https://github.com/llleixx/ItemSpawnerEnhanced/tree/main/src/ItemSpawnerEnhanced.ChineseSearch)，借助 [`TinyPinyin`](https://github.com/hstarorg/TinyPinyin.Net) 實現 | 支援**空格全拼**（如 `sheng suo qiang`）、**連續全拼**（如 `shengsuoqiang`）和**拼音首字母**（如 `ssq`）搜尋。 |
+
+## Why ItemSpawnerEnhanced?
+
+The comparison below uses [**quackandcheese-ItemSpawner 0.1.4**](https://thunderstore.io/c/peak/p/quackandcheese/ItemSpawner/v/0.1.4/) as the baseline.
+
+| Area | ItemSpawnerEnhanced | [quackandcheese-ItemSpawner 0.1.4](https://thunderstore.io/c/peak/p/quackandcheese/ItemSpawner/v/0.1.4/) |
+| --- | --- | --- |
+| **External installation requirements** | `BepInExPack_PEAK` only; language extensions include their own runtime code | `BepInExPack_PEAK` and `AutoHookGenPatcher` |
+| **Item names** | Uses PEAK's current-language names, with English and internal names as search fallbacks | Displays the item's source UI name |
+| **Search sources** | Current-language, English, internal/prefab, unlocalized, and registered language aliases | Displayed item text only |
+| **Match behavior** | Exact, prefix, word-prefix, substring, and bounded typo matching, with ranked results | Case-insensitive prefix matching |
+| **Spawn target** | Smart Target or any available Scout in the room | Local Scout only |
+| **Interface** | Larger text and controls designed for browsing and target selection | Original compact item browser |
+| **Language search extensions** | Public alias-provider API; providers can be contributed here or released as separate mods | No dedicated language-alias provider API |
+| **Items added by other mods** | Supported | Supported |
+
+Language mod authors are welcome to add transliteration or language-specific aliases. A provider can be submitted to the [ItemSpawnerEnhanced repository](https://github.com/llleixx/ItemSpawnerEnhanced) or distributed as a standalone companion mod. See the [language search extension guide](https://github.com/llleixx/ItemSpawnerEnhanced/blob/main/docs/LANGUAGE_SEARCH_EXTENSIONS.md) for both workflows and a TinyPinyin-based example.
 
 ## Installation
 
-1. Install `BepInExPack_PEAK`.
-2. Remove the original `quackandcheese-ItemSpawner`; the two plugins are
-   intentionally incompatible.
-3. Install the ItemSpawnerEnhanced package through a mod manager or place its
-   plugin folder under `BepInEx/plugins`.
+> **Compatibility notice:** ItemSpawnerEnhanced is intentionally incompatible with [`quackandcheese-ItemSpawner`](https://thunderstore.io/c/peak/p/quackandcheese/ItemSpawner/). Do not install both mods at the same time; remove the original ItemSpawner before installing ItemSpawnerEnhanced.
 
-The toggle key can be changed in
-`BepInEx/config/com.github.lllei.ItemSpawnerEnhanced.cfg`.
+1. **Install** `BepInExPack_PEAK`.
+2. **Install ItemSpawnerEnhanced** through a mod manager, or place its plugin folder under `BepInEx/plugins`.
+
+The toggle key can be changed in **`BepInEx/config/com.github.lllei.ItemSpawnerEnhanced.cfg`**.
 
 ## Multiplayer behavior
 
-PEAK's built-in spawn RPC is used. A client with this mod can request an item
-for any initialized player, and the room's master client performs the spawn.
-This is intentionally unrestricted and is not a host-enforced permission
-system. One click creates one item.
-
-## Language extensions
-
-Third-party mods can register aliases without referencing Unity types. See
-[the search provider API guide](docs/SEARCH_PROVIDER_API.md).
+PEAK's built-in spawn RPC is used. A client with this mod can request an item for **any connected Scout available to the game**, and the room's **master client** performs the spawn. This is intentionally unrestricted and is **not a host-enforced permission system**. One click creates one item.
 
 ## Building
 
-Copy `PeakGameDir.props.example` to `PeakGameDir.props`, set the PEAK path, then
-run:
+Copy `PeakGameDir.props.example` to `PeakGameDir.props`, set the PEAK path, then run:
 
 ```powershell
 dotnet test .\tests\ItemSpawnerEnhanced.Core.Tests\ItemSpawnerEnhanced.Core.Tests.csproj -c Release
-dotnet build .\src\ItemSpawnerEnhanced\ItemSpawnerEnhanced.csproj -c Release
-dotnet msbuild .\src\ItemSpawnerEnhanced\ItemSpawnerEnhanced.csproj -t:Deploy -p:Configuration=Release
+dotnet test .\tests\ItemSpawnerEnhanced.ChineseSearch.Tests\ItemSpawnerEnhanced.ChineseSearch.Tests.csproj -c Release
+dotnet build .\src\ItemSpawnerEnhanced.ChineseSearch\ItemSpawnerEnhanced.ChineseSearch.csproj -c Release
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build\Deploy.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File .\build\Package.ps1
 ```
-
-## 中文说明
-
-ItemSpawnerEnhanced 是一个纯客户端 PEAK 物品生成器。按 `F5` 打开界面，
-可以用当前游戏语言、英文、物品内部名称、中文全拼或拼音首字母搜索。
-
-“智能目标”会在存活时选择自己，在死亡观战时选择当前被观战的玩家；
-也可以从右侧下拉框手动选择房间内的其他玩家。每次点击只生成一个物品。
-
-安装增强版前需要移除原 ItemSpawner。这个 Mod 使用游戏原生生成 RPC，
-不会强制实施房主权限限制。

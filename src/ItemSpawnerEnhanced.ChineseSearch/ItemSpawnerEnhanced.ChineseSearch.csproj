@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>ItemSpawnerEnhanced.ChineseSearch</AssemblyName>
+    <RootNamespace>ItemSpawnerEnhanced.ChineseSearch</RootNamespace>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <DebugType>portable</DebugType>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.46" PrivateAssets="all" />
+    <PackageReference Include="TinyPinyin" Version="1.1.0" />
+    <ProjectReference Include="..\ItemSpawnerEnhanced\ItemSpawnerEnhanced.csproj" />
+    <Reference Include="BepInEx" HintPath="$(BepInExCoreDir)\BepInEx.dll" Private="false" />
+    <Reference Include="UnityEngine" HintPath="$(ManagedDir)\UnityEngine.dll" Private="false" />
+    <Reference Include="UnityEngine.CoreModule" HintPath="$(ManagedDir)\UnityEngine.CoreModule.dll" Private="false" />
+  </ItemGroup>
+
+  <Target Name="ValidateBepInEx" BeforeTargets="ResolveReferences">
+    <Error Condition="'$(PeakGameDir)' == ''" Text="Set PEAK_GAME_DIR or copy PeakGameDir.props.example to PeakGameDir.props." />
+    <Error Condition="!Exists('$(BepInExCoreDir)\BepInEx.dll')" Text="BepInEx.dll was not found under $(BepInExCoreDir). Install BepInExPack_PEAK." />
+    <Error Condition="!Exists('$(ManagedDir)\UnityEngine.dll')" Text="UnityEngine.dll was not found under $(ManagedDir). Check PeakGameDir." />
+    <Error Condition="!Exists('$(ManagedDir)\UnityEngine.CoreModule.dll')" Text="UnityEngine.CoreModule.dll was not found under $(ManagedDir). Check PeakGameDir." />
+  </Target>
+
+  <Target Name="GenerateBuildInfo" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <_BuildInfoLine Include="// &lt;auto-generated /&gt;" />
+      <_BuildInfoLine Include="namespace ItemSpawnerEnhanced.ChineseSearch { internal static class BuildInfo { internal const string Version = &quot;$(Version)&quot;%3B } }" />
+      <Compile Include="$(IntermediateOutputPath)BuildInfo.g.cs" />
+    </ItemGroup>
+    <WriteLinesToFile File="$(IntermediateOutputPath)BuildInfo.g.cs" Lines="@(_BuildInfoLine)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+  </Target>
+</Project>

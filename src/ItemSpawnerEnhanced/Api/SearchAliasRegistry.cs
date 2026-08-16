@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace ItemSpawnerEnhanced.Api;
 
@@ -9,25 +10,27 @@ public static class SearchAliasRegistry
     private static readonly object Sync = new();
     private static readonly Dictionary<string, ISearchAliasProvider> Providers =
         new(StringComparer.OrdinalIgnoreCase);
+    private static int _version;
 
-    public static event Action? Changed;
+    internal static int Version => Volatile.Read(ref _version);
 
     public static IDisposable Register(ISearchAliasProvider provider)
     {
         if (provider == null)
             throw new ArgumentNullException(nameof(provider));
-        if (string.IsNullOrWhiteSpace(provider.Id))
+        string id = provider.Id;
+        if (string.IsNullOrWhiteSpace(id))
             throw new ArgumentException("Alias provider ID must not be empty.", nameof(provider));
 
         lock (Sync)
         {
-            if (Providers.ContainsKey(provider.Id))
-                throw new InvalidOperationException($"A search alias provider named '{provider.Id}' is already registered.");
-            Providers.Add(provider.Id, provider);
+            if (Providers.ContainsKey(id))
+                throw new InvalidOperationException($"A search alias provider named '{id}' is already registered.");
+            Providers.Add(id, provider);
+            Interlocked.Increment(ref _version);
         }
 
-        Changed?.Invoke();
-        return new Registration(provider.Id);
+        return new Registration(id);
     }
 
     internal static IReadOnlyList<ISearchAliasProvider> Snapshot()
@@ -39,17 +42,19 @@ public static class SearchAliasRegistry
     internal static void ClearForTests()
     {
         lock (Sync)
+        {
             Providers.Clear();
-        Changed = null;
+            Interlocked.Exchange(ref _version, 0);
+        }
     }
 
     private static void Unregister(string id)
     {
-        bool removed;
         lock (Sync)
-            removed = Providers.Remove(id);
-        if (removed)
-            Changed?.Invoke();
+        {
+            if (Providers.Remove(id))
+                Interlocked.Increment(ref _version);
+        }
     }
 
     private sealed class Registration : IDisposable
@@ -60,11 +65,9 @@ public static class SearchAliasRegistry
 
         public void Dispose()
         {
-            string? id = _id;
-            _id = null;
+            string? id = Interlocked.Exchange(ref _id, null);
             if (id != null)
                 Unregister(id);
         }
     }
 }
-

@@ -16,47 +16,37 @@ internal sealed class PlayerTargetService
 
     public PlayerTargetService(ManualLogSource logger) => _logger = logger;
 
-    public IReadOnlyList<PlayerTarget> GetTargets()
+    public PlayerTargetSnapshot Capture()
     {
+        Character[] characters = GetPlayerCharacters();
         Character? spectated = MainCameraMovement.specCharacter;
-        return PlayerHandler.GetAllPlayerCharacters()
-            .Where(IsPlayerCharacter)
-            .Select(character => new PlayerTarget(
-                GetActorId(character),
-                character.characterName,
-                character == Character.localCharacter,
-                character == spectated,
-                IsValid(character)))
-            .Where(target => target.ActorId > 0)
+        var targets = new List<PlayerTarget>(characters.Length);
+        var candidates = new TargetCandidate[characters.Length];
+
+        for (int index = 0; index < characters.Length; index++)
+        {
+            Character character = characters[index];
+            int actorId = GetActorId(character);
+            bool canReceiveItem = CanReceiveItem(character);
+            bool isLocal = character == Character.localCharacter;
+            bool isSpectated = character == spectated;
+            bool isSelectable = IsSelectable(actorId, canReceiveItem);
+            candidates[index] = new TargetCandidate(
+                actorId,
+                isLocal,
+                isSpectated,
+                isSelectable,
+                canReceiveItem);
+
+            if (actorId > 0)
+                targets.Add(new PlayerTarget(actorId, character.characterName, isLocal, isSpectated, isSelectable));
+        }
+
+        PlayerTarget[] orderedTargets = targets
             .OrderByDescending(target => target.IsLocal)
             .ThenBy(target => target.Name, StringComparer.OrdinalIgnoreCase)
             .ToArray();
-    }
-
-    public Character? Resolve(int? manualActorId)
-    {
-        if (manualActorId.HasValue)
-        {
-            IReadOnlyList<PlayerTarget> targets = GetTargets();
-            int? actorId = TargetResolver.Resolve(
-                targets.Select(target => target.ToCandidate()).ToArray(),
-                manualActorId);
-            if (actorId.HasValue)
-            {
-                Character? selected = PlayerHandler.GetAllPlayerCharacters()
-                    .FirstOrDefault(character =>
-                        IsPlayerCharacter(character) && GetActorId(character) == actorId.Value && IsValid(character));
-                if (selected != null)
-                    return selected;
-            }
-        }
-
-        Character? spectated = MainCameraMovement.specCharacter;
-        if (CanReceiveItem(spectated))
-            return spectated;
-
-        Character? local = Character.localCharacter;
-        return CanReceiveItem(local) ? local : null;
+        return new PlayerTargetSnapshot(characters, candidates, orderedTargets);
     }
 
     public bool TrySpawn(Item item, int? manualActorId, out string errorKey)
@@ -67,7 +57,7 @@ internal sealed class PlayerTargetService
             return false;
         }
 
-        Character? target = Resolve(manualActorId);
+        Character? target = Capture().Resolve(manualActorId);
         if (target == null)
         {
             errorKey = "noTarget";
@@ -93,11 +83,14 @@ internal sealed class PlayerTargetService
 
     private static bool IsPlayerCharacter(Character? character) => character != null && !character.isBot;
 
+    private static Character[] GetPlayerCharacters() =>
+        PlayerHandler.GetAllPlayerCharacters().Where(IsPlayerCharacter).ToArray();
+
     private static bool CanReceiveItem(Character? character) =>
         IsPlayerCharacter(character) && character!.refs != null && character.refs.items != null;
 
-    private static bool IsValid(Character character) =>
-        character.IsInitialized && character.refs != null && character.refs.items != null && GetActorId(character) > 0;
+    private static bool IsSelectable(int actorId, bool canReceiveItem) =>
+        actorId > 0 && canReceiveItem;
 
     private static int GetActorId(Character character)
     {
@@ -112,22 +105,46 @@ internal sealed class PlayerTargetService
     }
 }
 
+internal sealed class PlayerTargetSnapshot
+{
+    private readonly Character[] _characters;
+    private readonly TargetCandidate[] _candidates;
+
+    public PlayerTargetSnapshot(
+        Character[] characters,
+        TargetCandidate[] candidates,
+        IReadOnlyList<PlayerTarget> targets)
+    {
+        _characters = characters;
+        _candidates = candidates;
+        Targets = targets;
+    }
+
+    public IReadOnlyList<PlayerTarget> Targets { get; }
+
+    public Character? Resolve(int? manualActorId)
+    {
+        // Airport lobby characters can receive items before initialization completes
+        // and become manually selectable once they have a stable Photon actor ID.
+        int? targetIndex = TargetResolver.ResolveIndex(_candidates, manualActorId);
+        return targetIndex.HasValue ? _characters[targetIndex.Value] : null;
+    }
+}
+
 internal readonly struct PlayerTarget
 {
-    public PlayerTarget(int actorId, string name, bool isLocal, bool isSpectated, bool isValid)
+    public PlayerTarget(int actorId, string name, bool isLocal, bool isSpectated, bool isSelectable)
     {
         ActorId = actorId;
         Name = name;
         IsLocal = isLocal;
         IsSpectated = isSpectated;
-        IsValid = isValid;
+        IsSelectable = isSelectable;
     }
 
     public int ActorId { get; }
     public string Name { get; }
     public bool IsLocal { get; }
     public bool IsSpectated { get; }
-    public bool IsValid { get; }
-
-    public TargetCandidate ToCandidate() => new(ActorId, IsLocal, IsSpectated, IsValid);
+    public bool IsSelectable { get; }
 }
