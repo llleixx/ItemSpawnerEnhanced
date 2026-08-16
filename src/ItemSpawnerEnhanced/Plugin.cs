@@ -4,12 +4,10 @@ using HarmonyLib;
 namespace ItemSpawnerEnhanced;
 
 [BepInPlugin(PluginGuid, PluginName, BuildInfo.Version)]
-[BepInIncompatibility(OriginalPluginGuid)]
 public sealed class Plugin : BaseUnityPlugin
 {
     public const string PluginGuid = "com.github.lllei.ItemSpawnerEnhanced";
     public const string PluginName = "ItemSpawnerEnhanced";
-    public const string OriginalPluginGuid = "com.quackandcheese.ItemSpawner";
 
     internal static Plugin? Instance { get; private set; }
 

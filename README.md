@@ -50,7 +50,7 @@ Language mod authors are welcome to add transliteration or language-specific ali
 
 ## Installation
 
-> **Compatibility notice:** ItemSpawnerEnhanced is intentionally incompatible with [`quackandcheese-ItemSpawner`](https://thunderstore.io/c/peak/p/quackandcheese/ItemSpawner/). Do not install both mods at the same time; remove the original ItemSpawner before installing ItemSpawnerEnhanced.
+> **Compatibility notice:** Do not install ItemSpawnerEnhanced alongside [`quackandcheese-ItemSpawner`](https://thunderstore.io/c/peak/p/quackandcheese/ItemSpawner/). With both mods installed, each responds to its configured toggle key (`F5` by default), so pressing `F5` opens both item-spawner windows. Remove the original ItemSpawner before installing ItemSpawnerEnhanced.
 
 1. **Install** `BepInExPack_PEAK`.
 2. **Install ItemSpawnerEnhanced** through a mod manager. For a manual installation, extract the package and copy its `plugins/ItemSpawnerEnhanced` folder into `<PEAK>/BepInEx/plugins/`.
