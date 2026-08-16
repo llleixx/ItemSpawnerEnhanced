@@ -53,7 +53,14 @@ Language mod authors are welcome to add transliteration or language-specific ali
 > **Compatibility notice:** ItemSpawnerEnhanced is intentionally incompatible with [`quackandcheese-ItemSpawner`](https://thunderstore.io/c/peak/p/quackandcheese/ItemSpawner/). Do not install both mods at the same time; remove the original ItemSpawner before installing ItemSpawnerEnhanced.
 
 1. **Install** `BepInExPack_PEAK`.
-2. **Install ItemSpawnerEnhanced** through a mod manager, or place its plugin folder under `BepInEx/plugins`.
+2. **Install ItemSpawnerEnhanced** through a mod manager. For a manual installation, extract the package and copy its `plugins/ItemSpawnerEnhanced` folder into `<PEAK>/BepInEx/plugins/`.
+
+After installation, both plugin files should be at:
+
+```text
+<PEAK>/BepInEx/plugins/ItemSpawnerEnhanced/ItemSpawnerEnhanced.dll
+<PEAK>/BepInEx/plugins/ItemSpawnerEnhanced/ItemSpawnerEnhanced.ChineseSearch.dll
+```
 
 The toggle key can be changed in **`BepInEx/config/com.github.lllei.ItemSpawnerEnhanced.cfg`**.
 
