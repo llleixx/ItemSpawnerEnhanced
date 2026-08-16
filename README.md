@@ -2,6 +2,10 @@
 
 A client-side item spawner for PEAK built for players across **every supported game language**, with **localized smart search**, **spectator-aware targeting**, and support for spawning items for **any connected Scout**.
 
+| English search | 简体中文拼音搜索 | 日本語検索 |
+| :---: | :---: | :---: |
+| ![English item search](https://raw.githubusercontent.com/llleixx/ItemSpawnerEnhanced/main/docs/media/english.jpg) | ![简体中文拼音搜索](https://raw.githubusercontent.com/llleixx/ItemSpawnerEnhanced/main/docs/media/chinese.jpg) | ![日本語のアイテム検索](https://raw.githubusercontent.com/llleixx/ItemSpawnerEnhanced/main/docs/media/japanese.jpg) |
+
 ## Features
 
 ### Core features
