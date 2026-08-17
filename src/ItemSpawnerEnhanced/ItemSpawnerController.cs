@@ -11,7 +11,7 @@ internal sealed class ItemSpawnerController : IDisposable
     private readonly ManualLogSource _logger;
     private readonly ModConfig _settings;
     private readonly FavoriteStore _favorites;
-    private readonly FilterSession _filterSession = new();
+    private readonly ItemBrowserSession _browserSession = new();
     private readonly Key _toggleKey;
     private ItemSpawnerWindow? _window;
 
@@ -30,7 +30,7 @@ internal sealed class ItemSpawnerController : IDisposable
 
         try
         {
-            _window = ItemSpawnerWindow.Create(_logger, _settings, _favorites, _filterSession);
+            _window = ItemSpawnerWindow.Create(_logger, _settings, _favorites, _browserSession);
         }
         catch (Exception exception)
         {

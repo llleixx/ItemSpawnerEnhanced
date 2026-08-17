@@ -24,7 +24,7 @@ The default catalog hides confirmed unused, test, cheat, and logically duplicate
 ShowAllItems = true
 ```
 
-When enabled, the catalog includes every non-null prefab registered in `ItemDatabase.Objects`, including all 37 entries in the default-hidden list below. A changed setting is included in catalog cache validation, so the item window rebuilds after the new value is loaded.
+When enabled, the catalog includes every non-null prefab registered in `ItemDatabase.Instance.Objects`, including all 37 entries in the default-hidden list below. A changed setting is included in catalog cache validation, so the item window rebuilds after the new value is loaded.
 
 ## Tag rules
 

@@ -1,5 +1,6 @@
 using BepInEx;
 using HarmonyLib;
+using ItemSpawnerEnhanced.UI;
 
 namespace ItemSpawnerEnhanced;
 
@@ -35,6 +36,7 @@ public sealed class Plugin : BaseUnityPlugin
     {
         _controller?.Dispose();
         _harmony?.UnpatchSelf();
+        RuntimeUiAssets.Release();
         Instance = null;
     }
 }
