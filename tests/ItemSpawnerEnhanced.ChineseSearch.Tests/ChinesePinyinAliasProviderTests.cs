@@ -7,6 +7,16 @@ namespace ItemSpawnerEnhanced.ChineseSearch.Tests;
 public sealed class ChinesePinyinAliasProviderTests
 {
     [Test]
+    public void WarmUp_CanBeCalledRepeatedly()
+    {
+        Assert.DoesNotThrow(() =>
+        {
+            ChinesePinyinAliasProvider.WarmUp();
+            ChinesePinyinAliasProvider.WarmUp();
+        });
+    }
+
+    [Test]
     public void Provider_GeneratesSpacedCompactAndInitialAliases()
     {
         var provider = new ChinesePinyinAliasProvider();

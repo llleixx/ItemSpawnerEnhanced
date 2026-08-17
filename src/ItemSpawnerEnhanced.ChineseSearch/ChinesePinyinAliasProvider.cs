@@ -13,6 +13,14 @@ internal sealed class ChinesePinyinAliasProvider : ISearchAliasProvider
         languageCode.Equals("zh-Hans", StringComparison.OrdinalIgnoreCase) ||
         languageCode.Equals("zh-Hant", StringComparison.OrdinalIgnoreCase);
 
+    public static void WarmUp()
+    {
+        const string sample = "\u9884\u70ed";
+        _ = PinyinHelper.GetPinyin(sample, " ");
+        _ = PinyinHelper.GetPinyin(sample, string.Empty);
+        _ = PinyinHelper.GetPinyinInitials(sample, string.Empty);
+    }
+
     public IEnumerable<string> GetAliases(SearchAliasContext context)
     {
         if (string.IsNullOrWhiteSpace(context.DisplayName))

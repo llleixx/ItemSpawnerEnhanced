@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using BepInEx.Logging;
 using ItemSpawnerEnhanced.Api;
@@ -11,9 +12,10 @@ namespace ItemSpawnerEnhanced.UI;
 
 internal sealed class ItemBrowserController
 {
-    private const int ItemBatchSize = 24;
-    private const float ItemBatchIntervalSeconds = 0.2f;
-    private const int SearchIndexBatchSize = 12;
+    private const double CatalogWorkBudgetMilliseconds = 1.25;
+    private const double TileWorkBudgetMilliseconds = 1.25;
+    private const int MaximumItemsPerFrame = 2;
+    private const double SearchIndexWorkBudgetMilliseconds = 1.25;
 
     private readonly ManualLogSource _logger;
     private readonly ModConfig _settings;
@@ -48,6 +50,7 @@ internal sealed class ItemBrowserController
 
     public bool IsRebuilding => _refresh.IsRebuilding;
     public bool HasPendingRefresh => _refresh.Pending != RefreshRequirement.None;
+    public bool HasPendingCatalogRefresh => (_refresh.Pending & RefreshRequirement.Catalog) != 0;
     public bool AliasProvidersChanged => _aliasProviderVersion != SearchAliasRegistry.Version;
 
     public bool CanAttemptRebuild(float currentTime) => currentTime >= _nextRebuildAttempt;
@@ -151,16 +154,26 @@ internal sealed class ItemBrowserController
     {
         _view.ClearItems();
 
-        try
+        IEnumerator rebuildItems = _catalog.RebuildItemsIncrementally(CatalogWorkBudgetMilliseconds);
+        while (true)
         {
-            _catalog.RebuildItems();
-        }
-        catch (Exception exception)
-        {
-            _logger.LogError($"Failed to rebuild the item catalog: {exception}");
-            yield break;
+            bool hasMore;
+            try
+            {
+                hasMore = rebuildItems.MoveNext();
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Failed to rebuild the item catalog: {exception}");
+                yield break;
+            }
+            if (!hasMore)
+                break;
+            yield return rebuildItems.Current;
         }
 
+        Stopwatch tileBatch = Stopwatch.StartNew();
+        int itemsInBatch = 0;
         for (int index = 0; index < _catalog.Items.Count; index++)
         {
             GameItemRecord record = _catalog.Items[index];
@@ -177,9 +190,16 @@ internal sealed class ItemBrowserController
             {
                 _logger.LogError($"Failed to create the item tile for '{record.Item.name}': {exception}");
             }
+            itemsInBatch++;
 
-            if ((index + 1) % ItemBatchSize == 0 && index + 1 < _catalog.Items.Count)
-                yield return new WaitForSecondsRealtime(ItemBatchIntervalSeconds);
+            if (index + 1 < _catalog.Items.Count &&
+                (itemsInBatch >= MaximumItemsPerFrame ||
+                 tileBatch.Elapsed.TotalMilliseconds >= TileWorkBudgetMilliseconds))
+            {
+                yield return null;
+                tileBatch.Restart();
+                itemsInBatch = 0;
+            }
         }
 
         _refresh.Complete(RebuildPhase.Catalog);
@@ -188,7 +208,7 @@ internal sealed class ItemBrowserController
     private IEnumerator RebuildSearchIndexIncrementally()
     {
         int providerVersion = SearchAliasRegistry.Version;
-        IEnumerator rebuild = _catalog.RebuildSearchIndexIncrementally(SearchIndexBatchSize);
+        IEnumerator rebuild = _catalog.RebuildSearchIndexIncrementally(SearchIndexWorkBudgetMilliseconds);
         while (true)
         {
             bool hasMore;

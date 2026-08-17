@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Diagnostics;
 using System.Reflection;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -22,6 +23,7 @@ internal sealed class ItemSpawnerWindow : MenuWindow
     private ItemSpawnerView _view = null!;
     private ItemBrowserController _browser = null!;
     private Coroutine? _rebuildRoutine;
+    private Coroutine? _warmUpRoutine;
     private bool _shutdown;
 
     public override bool openOnStart => false;
@@ -74,10 +76,22 @@ internal sealed class ItemSpawnerWindow : MenuWindow
         if (_shutdown)
             return;
         _shutdown = true;
+        StopBackgroundWarmUp();
         StopRebuild();
         LocalizedText.OnLangugageChanged -= OnLanguageChanged;
         if (_settings != null)
             _settings.TagMatchModeEntry.SettingChanged -= OnTagMatchModeChanged;
+    }
+
+    protected override void Start()
+    {
+        base.Start();
+        if (_shutdown)
+            return;
+
+        _view.SetVisible(false);
+        panel.SetActive(true);
+        _warmUpRoutine = StartCoroutine(WarmUpInBackground());
     }
 
     protected override void Update()
@@ -114,9 +128,13 @@ internal sealed class ItemSpawnerWindow : MenuWindow
 
     protected override void OnOpen()
     {
+        StopBackgroundWarmUp();
+        _view.SetVisible(true);
         base.OnOpen();
-        if (!_browser.IsCatalogCurrent())
+        bool catalogCurrent = _browser.HasPendingCatalogRefresh || _browser.IsCatalogCurrent();
+        if (!_browser.HasPendingCatalogRefresh && !catalogCurrent)
             _browser.RequestRefresh(RefreshRequirement.Catalog);
+
         if (_browser.AliasProvidersChanged)
             _browser.RequestRefresh(RefreshRequirement.SearchIndex);
 
@@ -136,6 +154,7 @@ internal sealed class ItemSpawnerWindow : MenuWindow
     {
         StopRebuild();
         _view.DeactivateSearch();
+        _view.SetVisible(false);
         base.OnClose();
     }
 
@@ -174,8 +193,33 @@ internal sealed class ItemSpawnerWindow : MenuWindow
         _rebuildRoutine = StartCoroutine(RunRequiredRebuild());
     }
 
+    private IEnumerator WarmUpInBackground()
+    {
+        Stopwatch stopwatch = Stopwatch.StartNew();
+        yield return null;
+        yield return _browser.RebuildRequiredIncrementally();
+        _warmUpRoutine = null;
+        stopwatch.Stop();
+        _logger.LogInfo(
+            $"[Perf:UIWarmUp] Full background warm-up completed in {stopwatch.Elapsed.TotalMilliseconds:F2} ms; " +
+            $"items={_view.VisibleItemCount}.");
+        panel.SetActive(false);
+    }
+
+    private void StopBackgroundWarmUp()
+    {
+        if (_warmUpRoutine == null)
+            return;
+
+        StopCoroutine(_warmUpRoutine);
+        _warmUpRoutine = null;
+        if (_browser != null)
+            _browser.AbortRebuild();
+    }
+
     private IEnumerator RunRequiredRebuild()
     {
+        yield return null;
         yield return _browser.RebuildRequiredIncrementally();
         _rebuildRoutine = null;
     }
@@ -206,6 +250,13 @@ internal sealed class ItemSpawnerWindow : MenuWindow
         _browser.RequestRefresh(RefreshRequirement.Catalog);
         _targetController.InvalidateLabels();
         ApplyLocalizedChrome();
+        if (_warmUpRoutine != null)
+        {
+            StopBackgroundWarmUp();
+            _warmUpRoutine = StartCoroutine(WarmUpInBackground());
+            return;
+        }
+
         if (isOpen)
         {
             StopRebuild();

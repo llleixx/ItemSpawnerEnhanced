@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using BepInEx.Logging;
 using ItemSpawnerEnhanced.Api;
@@ -34,27 +35,49 @@ internal sealed class GameItemCatalog
 
     public void RebuildItems()
     {
+        IEnumerator rebuild = RebuildItemsIncrementally(double.MaxValue);
+        while (rebuild.MoveNext())
+        {
+        }
+    }
+
+    public IEnumerator RebuildItemsIncrementally(double timeBudgetMilliseconds)
+    {
+        if (timeBudgetMilliseconds <= 0)
+            throw new ArgumentOutOfRangeException(nameof(timeBudgetMilliseconds));
+
         Item[] sourceItems = ItemDatabase.Instance.Objects.Where(item => item != null).ToArray();
         bool showAllItems = _showAllItems();
-        Items = sourceItems
-            .Where(item => VanillaItemVisibility.IsVisible(item.name, showAllItems))
-            .Select(item =>
+        var items = new List<GameItemRecord>(sourceItems.Length);
+        long sliceStarted = Stopwatch.GetTimestamp();
+        for (int index = 0; index < sourceItems.Length; index++)
+        {
+            Item item = sourceItems[index];
+            if (VanillaItemVisibility.IsVisible(item.name, showAllItems))
             {
                 string rawName = item.UIData?.itemName ?? item.name;
-                return new GameItemRecord(
+                items.Add(new GameItemRecord(
                     item,
                     SafeLocalizedName(item, rawName),
-                    ItemCategoryResolver.Resolve(item, rawName));
-            }).ToArray();
+                    ItemCategoryResolver.Resolve(item, rawName)));
+            }
+
+            if (index + 1 < sourceItems.Length && ElapsedMilliseconds(sliceStarted) >= timeBudgetMilliseconds)
+            {
+                yield return null;
+                sliceStarted = Stopwatch.GetTimestamp();
+            }
+        }
+        Items = items.ToArray();
         _sourceItems = sourceItems;
         _sourceShowAllItems = showAllItems;
         _index = new SearchIndex<GameItemRecord>(Array.Empty<(GameItemRecord, IEnumerable<SearchAliasValue>)>());
     }
 
-    public IEnumerator RebuildSearchIndexIncrementally(int batchSize)
+    public IEnumerator RebuildSearchIndexIncrementally(double timeBudgetMilliseconds)
     {
-        if (batchSize <= 0)
-            throw new ArgumentOutOfRangeException(nameof(batchSize));
+        if (timeBudgetMilliseconds <= 0)
+            throw new ArgumentOutOfRangeException(nameof(timeBudgetMilliseconds));
 
         string languageCode = GameLanguage.CurrentCode;
         IReadOnlyList<ISearchAliasProvider> providers = SearchAliasRegistry.Snapshot();
@@ -73,6 +96,7 @@ internal sealed class GameItemCatalog
         }
 
         var indexBuilder = new SearchIndex<GameItemRecord>.Builder();
+        long sliceStarted = Stopwatch.GetTimestamp();
 
         for (int itemIndex = 0; itemIndex < Items.Count; itemIndex++)
         {
@@ -104,8 +128,11 @@ internal sealed class GameItemCatalog
             }
 
             indexBuilder.Add(record, aliases);
-            if ((itemIndex + 1) % batchSize == 0 && itemIndex + 1 < Items.Count)
+            if (itemIndex + 1 < Items.Count && ElapsedMilliseconds(sliceStarted) >= timeBudgetMilliseconds)
+            {
                 yield return null;
+                sliceStarted = Stopwatch.GetTimestamp();
+            }
         }
 
         _index = indexBuilder.Build();
@@ -142,6 +169,9 @@ internal sealed class GameItemCatalog
 
     private static bool IsUsable(string? value) =>
         !string.IsNullOrWhiteSpace(value) && !value.StartsWith("LOC:", StringComparison.OrdinalIgnoreCase);
+
+    private static double ElapsedMilliseconds(long started) =>
+        (Stopwatch.GetTimestamp() - started) * 1000d / Stopwatch.Frequency;
 }
 
 internal sealed class GameItemRecord

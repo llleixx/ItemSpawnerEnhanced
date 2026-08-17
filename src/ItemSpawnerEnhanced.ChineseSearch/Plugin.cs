@@ -17,6 +17,14 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void Awake()
     {
+        try
+        {
+            ChinesePinyinAliasProvider.WarmUp();
+        }
+        catch (Exception exception)
+        {
+            Logger.LogWarning($"TinyPinyin warm-up failed; aliases will initialize on first use: {exception}");
+        }
         _providerRegistration = SearchAliasRegistry.Register(new ChinesePinyinAliasProvider());
         Logger.LogInfo($"{PluginName} {BuildInfo.Version} loaded.");
     }

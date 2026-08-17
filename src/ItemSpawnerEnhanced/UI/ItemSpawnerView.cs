@@ -12,6 +12,7 @@ namespace ItemSpawnerEnhanced.UI;
 internal sealed class ItemSpawnerView
 {
     private readonly TMP_FontAsset _font;
+    private readonly CanvasGroup _canvasGroup;
     private readonly TMP_InputField _search;
     private readonly TMP_Dropdown _targetDropdown;
     private readonly TextMeshProUGUI _title;
@@ -25,11 +26,14 @@ internal sealed class ItemSpawnerView
     private readonly ItemNameTooltip _tooltip;
     private readonly IReadOnlyList<TagToggle> _tagToggles;
     private readonly List<ItemTile> _tiles = new();
+    private readonly Dictionary<GameItemRecord, ItemTile> _tileByRecord = new();
     private bool? _spawnEnabled;
+    private int _visibleItemCount;
 
     private ItemSpawnerView(
         GameObject root,
         TMP_FontAsset font,
+        CanvasGroup canvasGroup,
         TextMeshProUGUI title,
         TMP_InputField search,
         TMP_Dropdown targetDropdown,
@@ -45,6 +49,7 @@ internal sealed class ItemSpawnerView
     {
         Root = root;
         _font = font;
+        _canvasGroup = canvasGroup;
         _title = title;
         _search = search;
         _targetDropdown = targetDropdown;
@@ -62,7 +67,7 @@ internal sealed class ItemSpawnerView
     public GameObject Root { get; }
     public Selectable SearchSelectable => _search;
     public string SearchText => _search.text;
-    public int VisibleItemCount => _tiles.Count(tile => tile.GameObject.activeSelf);
+    public int VisibleItemCount => _visibleItemCount;
 
     public static ItemSpawnerView Create()
     {
@@ -71,6 +76,7 @@ internal sealed class ItemSpawnerView
             typeof(RectTransform),
             typeof(Canvas),
             typeof(CanvasScaler),
+            typeof(CanvasGroup),
             typeof(GraphicRaycaster));
         try
         {
@@ -90,6 +96,7 @@ internal sealed class ItemSpawnerView
             return new ItemSpawnerView(
                 root,
                 references.Font,
+                root.GetComponent<CanvasGroup>(),
                 references.Title,
                 references.Search,
                 references.TargetDropdown,
@@ -170,6 +177,13 @@ internal sealed class ItemSpawnerView
 
     public void DeactivateSearch() => _search.DeactivateInputField();
 
+    public void SetVisible(bool visible)
+    {
+        _canvasGroup.alpha = visible ? 1 : 0;
+        _canvasGroup.interactable = visible;
+        _canvasGroup.blocksRaycasts = visible;
+    }
+
     public void ClearItems()
     {
         _tooltip.Hide();
@@ -179,6 +193,8 @@ internal sealed class ItemSpawnerView
             UnityEngine.Object.Destroy(tile.GameObject);
         }
         _tiles.Clear();
+        _tileByRecord.Clear();
+        _visibleItemCount = 0;
         _spawnEnabled = null;
     }
 
@@ -198,12 +214,14 @@ internal sealed class ItemSpawnerView
             _tooltip);
         tile.Button.interactable = false;
         _tiles.Add(tile);
+        _tileByRecord.Add(record, tile);
+        _visibleItemCount++;
     }
 
     public void SetFavorite(GameItemRecord record, bool isFavorite)
     {
-        ItemTile? tile = _tiles.FirstOrDefault(candidate => candidate.Record == record);
-        tile?.SetFavorite(isFavorite);
+        if (_tileByRecord.TryGetValue(record, out ItemTile? tile))
+            tile.SetFavorite(isFavorite);
     }
 
     public void SetFavoriteEnabled(bool enabled)
@@ -238,17 +256,24 @@ internal sealed class ItemSpawnerView
     public void ShowSearchResults(IReadOnlyList<GameItemRecord> results)
     {
         _tooltip.Hide();
+        var visible = new HashSet<GameItemRecord>(results);
         foreach (ItemTile tile in _tiles)
-            tile.GameObject.SetActive(false);
+        {
+            bool shouldBeVisible = visible.Contains(tile.Record);
+            if (tile.GameObject.activeSelf != shouldBeVisible)
+                tile.GameObject.SetActive(shouldBeVisible);
+        }
 
-        var tileMap = _tiles.ToDictionary(tile => tile.Record);
+        int visibleItemCount = 0;
         for (int index = 0; index < results.Count; index++)
         {
-            if (!tileMap.TryGetValue(results[index], out ItemTile? tile))
+            if (!_tileByRecord.TryGetValue(results[index], out ItemTile? tile))
                 continue;
-            tile.GameObject.SetActive(true);
-            tile.GameObject.transform.SetSiblingIndex(index);
+            if (tile.GameObject.transform.GetSiblingIndex() != index)
+                tile.GameObject.transform.SetSiblingIndex(index);
+            visibleItemCount++;
         }
+        _visibleItemCount = visibleItemCount;
     }
 
     public void SetTargets(IReadOnlyList<string> labels, int selectedIndex)
