@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Added continuous item spawning while the left mouse button is held on an item tile.
+
 ## 1.1.0 - 2026-08-17
 
 - Added localized multi-select tags for Food, Consumables, Equipment, Deployables, Mystical items, Other items, and Favorites.

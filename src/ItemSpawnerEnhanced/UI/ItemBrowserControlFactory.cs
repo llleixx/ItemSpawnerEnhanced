@@ -91,7 +91,7 @@ internal static class ItemBrowserControlFactory
         Button button = root.GetComponent<Button>();
         button.targetGraphic = background;
         button.colors = RuntimeUiFactory.CreateButtonColors();
-        button.onClick.AddListener(onClick);
+        root.gameObject.AddComponent<ItemSpawnTrigger>().Configure(button, onClick);
 
         RectTransform iconRect = RuntimeUiFactory.CreateRect("Icon", root, typeof(RawImage));
         iconRect.anchorMin = new Vector2(0.5f, 1);

@@ -30,7 +30,7 @@ A client-side item spawner for PEAK built for players across **every supported g
 - **Curated catalog:** Hide known unused and internal duplicate prefabs by default, with an option to reveal every registered item.
 - **Persistent favorites:** Right-click an item to favorite it, mark its tile with a heart, and filter favorites like any other tag.
 - **Fully localized UI:** Use interface text for every language currently supported by PEAK.
-- **Native multiplayer spawning:** Spawn through PEAK's built-in network RPC, with exactly one item created per click.
+- **Native multiplayer spawning:** Spawn through PEAK's built-in network RPC; click for one item or hold the left mouse button to keep spawning.
 
 ### Search available in every language
 
@@ -85,7 +85,7 @@ See the [item tag and catalog visibility reference](https://github.com/llleixx/I
 
 ## Multiplayer behavior
 
-PEAK's built-in spawn RPC is used. A client with this mod can request an item for **any connected Scout available to the game**, and the room's **master client** performs the spawn. This is intentionally unrestricted and is **not a host-enforced permission system**. One click creates one item.
+PEAK's built-in spawn RPC is used. A client with this mod can request an item for **any connected Scout available to the game**, and the room's **master client** performs the spawn. This is intentionally unrestricted and is **not a host-enforced permission system**. Click an item once to create one, or hold the left mouse button on its tile to spawn repeatedly.
 
 ## Building
 
