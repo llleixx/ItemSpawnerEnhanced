@@ -2,6 +2,10 @@
 
 A client-side item spawner for PEAK built for players across **every supported game language**, with **localized smart search**, **spectator-aware targeting**, and support for spawning items for **any connected Scout**.
 
+| Favorites | Combined tag filtering |
+| :---: | :---: |
+| ![Favorites filter showing favorited item tiles](https://raw.githubusercontent.com/llleixx/ItemSpawnerEnhanced/main/docs/media/favorites.webp) | ![Consumables and Mystical tags selected together](https://raw.githubusercontent.com/llleixx/ItemSpawnerEnhanced/main/docs/media/tag-filtering.webp) |
+
 | English (`pack`) | 简体中文拼音首字母 (`bb`) |
 | :---: | :---: |
 | ![English pack search](https://raw.githubusercontent.com/llleixx/ItemSpawnerEnhanced/main/docs/media/search-en-pack.webp) | ![Simplified Chinese pinyin initials search](https://raw.githubusercontent.com/llleixx/ItemSpawnerEnhanced/main/docs/media/search-zh-hans-pinyin-initials.webp) |
