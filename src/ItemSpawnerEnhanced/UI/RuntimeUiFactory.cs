@@ -13,6 +13,7 @@ internal static class RuntimeUiFactory
     private static Texture2D? _heartTexture;
     private static Texture2D? _filterClearTexture;
     private static Texture2D? _searchClearTexture;
+    private static Sprite? _roundedRectSprite;
 
     internal static readonly Color Backdrop = new(0.035f, 0.043f, 0.047f, 0.88f);
     internal static readonly Color Panel = new(0.10f, 0.115f, 0.12f, 0.98f);
@@ -40,6 +41,12 @@ internal static class RuntimeUiFactory
         rect.anchorMax = Vector2.one;
         rect.offsetMin = new Vector2(left, bottom);
         rect.offsetMax = new Vector2(-right, -top);
+    }
+
+    public static void ApplyRoundedCorners(Image image)
+    {
+        image.sprite = RoundedRectSprite;
+        image.type = Image.Type.Sliced;
     }
 
     public static TextMeshProUGUI CreateText(
@@ -70,6 +77,7 @@ internal static class RuntimeUiFactory
     {
         RectTransform rect = CreateRect(name, parent, typeof(Image), typeof(Button));
         Image image = rect.GetComponent<Image>();
+        ApplyRoundedCorners(image);
         image.color = Surface;
         Button button = rect.GetComponent<Button>();
         button.targetGraphic = image;
@@ -84,7 +92,9 @@ internal static class RuntimeUiFactory
     public static TMP_InputField CreateInputField(Transform parent, TMP_FontAsset font)
     {
         RectTransform root = CreateRect("Search", parent, typeof(Image), typeof(TMP_InputField), typeof(LayoutElement));
-        root.GetComponent<Image>().color = Surface;
+        Image background = root.GetComponent<Image>();
+        ApplyRoundedCorners(background);
+        background.color = Surface;
         LayoutElement layout = root.GetComponent<LayoutElement>();
         layout.minWidth = 420;
         layout.preferredWidth = 700;
@@ -118,6 +128,7 @@ internal static class RuntimeUiFactory
     {
         RectTransform rect = CreateRect("ClearSearch", parent, typeof(Image), typeof(Button));
         Image background = rect.GetComponent<Image>();
+        ApplyRoundedCorners(background);
         background.color = Color.white;
         Button button = rect.GetComponent<Button>();
         button.targetGraphic = background;
@@ -143,6 +154,7 @@ internal static class RuntimeUiFactory
     {
         RectTransform root = CreateRect("ClearTags", parent, typeof(Image), typeof(Button));
         Image background = root.GetComponent<Image>();
+        ApplyRoundedCorners(background);
         background.color = Surface;
         Button button = root.GetComponent<Button>();
         button.targetGraphic = background;
@@ -160,7 +172,9 @@ internal static class RuntimeUiFactory
     public static TMP_Dropdown CreateDropdown(Transform parent, TMP_FontAsset font)
     {
         RectTransform root = CreateRect("Target", parent, typeof(Image), typeof(TMP_Dropdown), typeof(LayoutElement));
-        root.GetComponent<Image>().color = Surface;
+        Image rootBackground = root.GetComponent<Image>();
+        ApplyRoundedCorners(rootBackground);
+        rootBackground.color = Surface;
         LayoutElement layout = root.GetComponent<LayoutElement>();
         layout.minWidth = 240;
         layout.preferredWidth = 280;
@@ -183,7 +197,9 @@ internal static class RuntimeUiFactory
         template.pivot = new Vector2(0.5f, 1);
         template.anchoredPosition = new Vector2(0, -4);
         template.sizeDelta = new Vector2(0, 250);
-        template.GetComponent<Image>().color = new Color(0.08f, 0.09f, 0.095f, 1f);
+        Image templateBackground = template.GetComponent<Image>();
+        ApplyRoundedCorners(templateBackground);
+        templateBackground.color = new Color(0.08f, 0.09f, 0.095f, 1f);
 
         RectTransform viewport = CreateRect("Viewport", template, typeof(Image), typeof(Mask));
         Stretch(viewport, 4, 4, 4, 4);
@@ -208,7 +224,9 @@ internal static class RuntimeUiFactory
         item.GetComponent<LayoutElement>().preferredHeight = 40;
         RectTransform itemBackground = CreateRect("Item Background", item, typeof(Image));
         Stretch(itemBackground);
-        itemBackground.GetComponent<Image>().color = Surface;
+        Image itemBackgroundImage = itemBackground.GetComponent<Image>();
+        ApplyRoundedCorners(itemBackgroundImage);
+        itemBackgroundImage.color = Surface;
         TextMeshProUGUI itemLabel = CreateText("Item Label", item, font, 20, TextPrimary, TextAlignmentOptions.MidlineLeft);
         Stretch(itemLabel.rectTransform, 14, 10, 2, 2);
         Toggle toggle = item.GetComponent<Toggle>();
@@ -277,6 +295,7 @@ internal static class RuntimeUiFactory
         layout.flexibleWidth = 1;
 
         Image background = root.GetComponent<Image>();
+        ApplyRoundedCorners(background);
         Toggle toggle = root.GetComponent<Toggle>();
         toggle.targetGraphic = background;
         toggle.graphic = null;
@@ -316,6 +335,7 @@ internal static class RuntimeUiFactory
         visual.anchorMax = new Vector2(0.5f, 0.5f);
         visual.pivot = new Vector2(0, 1);
         Image background = visual.GetComponent<Image>();
+        ApplyRoundedCorners(background);
         background.color = new Color(0.27f, 0.29f, 0.30f, 0.98f);
         background.raycastTarget = false;
 
@@ -340,6 +360,7 @@ internal static class RuntimeUiFactory
     {
         RectTransform root = CreateRect(record.Item.name, parent, typeof(Image), typeof(Button));
         Image background = root.GetComponent<Image>();
+        ApplyRoundedCorners(background);
         background.color = Surface;
         Button button = root.GetComponent<Button>();
         button.targetGraphic = background;
@@ -405,6 +426,8 @@ internal static class RuntimeUiFactory
 
     private static Texture2D SearchClearTexture => _searchClearTexture ??= CreateSearchClearTexture();
 
+    private static Sprite RoundedRectSprite => _roundedRectSprite ??= CreateRoundedRectSprite();
+
     private static Texture2D CreateHeartTexture()
     {
         const int size = 32;
@@ -444,6 +467,63 @@ internal static class RuntimeUiFactory
         texture.SetPixels32(pixels);
         texture.Apply(updateMipmaps: false, makeNoLongerReadable: true);
         return texture;
+    }
+
+    private static Sprite CreateRoundedRectSprite()
+    {
+        const int size = 32;
+        const float radius = 8f;
+        const int samplesPerAxis = 4;
+        var texture = new Texture2D(size, size, TextureFormat.RGBA32, mipChain: false)
+        {
+            name = "ItemSpawnerEnhanced Rounded Rectangle",
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp,
+            hideFlags = HideFlags.HideAndDontSave
+        };
+        var pixels = new Color32[size * size];
+        Vector2 center = new(size * 0.5f, size * 0.5f);
+        float straightHalfExtent = size * 0.5f - radius;
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                int insideSamples = 0;
+                for (int sampleY = 0; sampleY < samplesPerAxis; sampleY++)
+                {
+                    for (int sampleX = 0; sampleX < samplesPerAxis; sampleX++)
+                    {
+                        Vector2 point = new(
+                            x + (sampleX + 0.5f) / samplesPerAxis,
+                            y + (sampleY + 0.5f) / samplesPerAxis);
+                        Vector2 distance = new(
+                            Mathf.Abs(point.x - center.x) - straightHalfExtent,
+                            Mathf.Abs(point.y - center.y) - straightHalfExtent);
+                        Vector2 outside = new(Mathf.Max(distance.x, 0), Mathf.Max(distance.y, 0));
+                        float signedDistance = outside.magnitude + Mathf.Min(Mathf.Max(distance.x, distance.y), 0) - radius;
+                        if (signedDistance <= 0)
+                            insideSamples++;
+                    }
+                }
+
+                byte alpha = (byte)(255 * insideSamples / (samplesPerAxis * samplesPerAxis));
+                pixels[y * size + x] = new Color32(255, 255, 255, alpha);
+            }
+        }
+
+        texture.SetPixels32(pixels);
+        texture.Apply(updateMipmaps: false, makeNoLongerReadable: true);
+        Sprite sprite = Sprite.Create(
+            texture,
+            new Rect(0, 0, size, size),
+            new Vector2(0.5f, 0.5f),
+            pixelsPerUnit: 100f,
+            extrude: 0,
+            SpriteMeshType.FullRect,
+            new Vector4(9, 9, 9, 9));
+        sprite.name = "ItemSpawnerEnhanced Rounded Rectangle";
+        sprite.hideFlags = HideFlags.HideAndDontSave;
+        return sprite;
     }
 
     private static Texture2D CreateFilterClearTexture() => CreateLineTexture(

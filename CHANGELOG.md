@@ -6,6 +6,7 @@
 - Added configurable AND/OR tag matching, defaulting to AND.
 - Added persistent right-click favorites with heart markers on item tiles.
 - Added one-click controls for clearing the search query or all selected tags.
+- Rounded the window, controls, tag buttons, item tiles, and tooltips.
 
 ## 1.0.1 - 2026-08-17
 

@@ -291,7 +291,9 @@ internal sealed class ItemSpawnerView
         panel.anchorMax = new Vector2(0.5f, 0.5f);
         panel.pivot = new Vector2(0.5f, 0.5f);
         panel.sizeDelta = new Vector2(1250, 900);
-        panel.GetComponent<Image>().color = RuntimeUiFactory.Panel;
+        Image panelBackground = panel.GetComponent<Image>();
+        RuntimeUiFactory.ApplyRoundedCorners(panelBackground);
+        panelBackground.color = RuntimeUiFactory.Panel;
 
         TextMeshProUGUI title = RuntimeUiFactory.CreateText(
             "Title", panel, font, 31, RuntimeUiFactory.TextPrimary, TextAlignmentOptions.MidlineLeft);
