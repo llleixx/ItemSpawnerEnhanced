@@ -89,3 +89,9 @@ dotnet build .\src\ItemSpawnerEnhanced.ChineseSearch\ItemSpawnerEnhanced.Chinese
 powershell -NoProfile -ExecutionPolicy Bypass -File .\build\Deploy.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File .\build\Package.ps1
 ```
+
+Optimize a 16:10 screenshot for the README with:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\build\Optimize-Screenshot.ps1 -InputPath .\screenshot.jpg -OutputPath .\docs\media\search-en-pack.webp
+```
