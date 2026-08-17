@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.1.0 - 2026-08-17
 
 - Added localized multi-select tags for Food, Consumables, Equipment, Deployables, Mystical items, Other items, and Favorites.
 - Added configurable AND/OR tag matching, defaulting to AND.
@@ -12,6 +12,7 @@
 - Corrected the Food, Consumable, Equipment, and Other assignments for several vanilla items.
 - Hid known unused, test, cheat, scene-prop, and internal duplicate item prefabs from the catalog.
 - Added a `ShowAllItems` catalog option for revealing every registered item prefab.
+- Improved UI lifecycle cleanup and reorganized browser, layout, control, and runtime-asset responsibilities.
 
 ## 1.0.1 - 2026-08-17
 
