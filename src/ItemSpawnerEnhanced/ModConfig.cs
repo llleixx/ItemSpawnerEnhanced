@@ -7,6 +7,7 @@ namespace ItemSpawnerEnhanced;
 internal sealed class ModConfig
 {
     private readonly ConfigEntry<Key> _toggleKey;
+    private readonly ConfigEntry<bool> _showAllItems;
     private readonly ConfigEntry<TagMatchMode> _tagMatchMode;
     private readonly ConfigEntry<string> _favoriteItemNames;
 
@@ -17,6 +18,12 @@ internal sealed class ModConfig
             "ToggleKey",
             Key.F5,
             "The keyboard key used to open and close the item spawner.");
+
+        _showAllItems = config.Bind(
+            "Catalog",
+            "ShowAllItems",
+            false,
+            "Show every item prefab registered by PEAK, including unused, test, cheat, and internal duplicate items.");
 
         _tagMatchMode = config.Bind(
             "Filtering",
@@ -32,6 +39,7 @@ internal sealed class ModConfig
     }
 
     public Key ToggleKey => _toggleKey.Value;
+    public bool ShowAllItems => _showAllItems.Value;
     public TagMatchMode TagMatchMode => _tagMatchMode.Value;
     public ConfigEntry<TagMatchMode> TagMatchModeEntry => _tagMatchMode;
     public ConfigEntry<string> FavoriteItemNamesEntry => _favoriteItemNames;

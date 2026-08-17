@@ -160,7 +160,7 @@ internal sealed class ItemSpawnerWindow : MenuWindow
         _filterSession = filterSession;
         _view = view;
         _localization = new LocalizationCatalog(Assembly.GetExecutingAssembly());
-        _catalog = new GameItemCatalog(logger);
+        _catalog = new GameItemCatalog(logger, () => settings.ShowAllItems);
         _targetController = new PlayerTargetController(new PlayerTargetService(logger), view, Localize);
         _view.Bind(ToggleWindow, ApplySearch, OnTargetChanged, OnTagChanged, ClearTags);
         _view.SetSelectedTags(_filterSession.SelectedTags);

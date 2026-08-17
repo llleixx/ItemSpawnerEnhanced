@@ -13,31 +13,41 @@ namespace ItemSpawnerEnhanced;
 internal sealed class GameItemCatalog
 {
     private readonly ManualLogSource _logger;
+    private readonly Func<bool> _showAllItems;
     private SearchIndex<GameItemRecord> _index = new(Array.Empty<(GameItemRecord, IEnumerable<SearchAliasValue>)>());
     private Item[] _sourceItems = Array.Empty<Item>();
+    private bool _sourceShowAllItems;
 
-    public GameItemCatalog(ManualLogSource logger) => _logger = logger;
+    public GameItemCatalog(ManualLogSource logger, Func<bool> showAllItems)
+    {
+        _logger = logger;
+        _showAllItems = showAllItems;
+    }
 
     public IReadOnlyList<GameItemRecord> Items { get; private set; } = Array.Empty<GameItemRecord>();
 
     public bool IsCurrent()
     {
         Item[] current = ItemDatabase.Instance.Objects.Where(item => item != null).ToArray();
-        return current.SequenceEqual(_sourceItems);
+        return current.SequenceEqual(_sourceItems) && _showAllItems() == _sourceShowAllItems;
     }
 
     public void RebuildItems()
     {
         Item[] sourceItems = ItemDatabase.Instance.Objects.Where(item => item != null).ToArray();
-        Items = sourceItems.Select(item =>
-        {
-            string rawName = item.UIData?.itemName ?? item.name;
-            return new GameItemRecord(
-                item,
-                SafeLocalizedName(item, rawName),
-                ItemCategoryResolver.Resolve(item, rawName));
-        }).ToArray();
+        bool showAllItems = _showAllItems();
+        Items = sourceItems
+            .Where(item => VanillaItemVisibility.IsVisible(item.name, showAllItems))
+            .Select(item =>
+            {
+                string rawName = item.UIData?.itemName ?? item.name;
+                return new GameItemRecord(
+                    item,
+                    SafeLocalizedName(item, rawName),
+                    ItemCategoryResolver.Resolve(item, rawName));
+            }).ToArray();
         _sourceItems = sourceItems;
+        _sourceShowAllItems = showAllItems;
         _index = new SearchIndex<GameItemRecord>(Array.Empty<(GameItemRecord, IEnumerable<SearchAliasValue>)>());
     }
 

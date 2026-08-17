@@ -7,6 +7,11 @@
 - Added persistent right-click favorites with heart markers on item tiles.
 - Added one-click controls for clearing the search query or all selected tags.
 - Rounded the window, controls, tag buttons, item tiles, and tooltips.
+- Updated the package icon.
+- Fixed food detection for items such as Coconut Half and made Food mutually exclusive with Consumables.
+- Corrected the Food, Consumable, Equipment, and Other assignments for several vanilla items.
+- Hid known unused, test, cheat, scene-prop, and internal duplicate item prefabs from the catalog.
+- Added a `ShowAllItems` catalog option for revealing every registered item prefab.
 
 ## 1.0.1 - 2026-08-17
 

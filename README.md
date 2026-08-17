@@ -23,6 +23,7 @@ A client-side item spawner for PEAK built for players across **every supported g
 - **Any Scout:** Select any available Scout in the room from the target dropdown.
 - **Modded item support:** Discover items registered in PEAK's item database, including items added by other mods.
 - **Tag filtering:** Combine Food, Consumables, Equipment, Deployables, Mystical, and Other tags using configurable AND or OR matching.
+- **Curated catalog:** Hide known unused and internal duplicate prefabs by default, with an option to reveal every registered item.
 - **Persistent favorites:** Right-click an item to favorite it, mark its tile with a heart, and filter favorites like any other tag.
 - **Fully localized UI:** Use interface text for every language currently supported by PEAK.
 - **Native multiplayer spawning:** Spawn through PEAK's built-in network RPC, with exactly one item created per click.
@@ -74,7 +75,9 @@ After installation, both plugin files should be at:
 <PEAK>/BepInEx/plugins/ItemSpawnerEnhanced/ItemSpawnerEnhanced.ChineseSearch.dll
 ```
 
-The toggle key and tag matching mode can be changed in **`BepInEx/config/com.github.lllei.ItemSpawnerEnhanced.cfg`**. Tag matching defaults to `And`; set `TagMatchMode = Or` to show items matching any selected tag. Favorite item names are saved automatically in the same file.
+The toggle key, tag matching mode, and catalog visibility can be changed in **`BepInEx/config/com.github.lllei.ItemSpawnerEnhanced.cfg`**. Tag matching defaults to `And`; set `TagMatchMode = Or` to show items matching any selected tag. Set `ShowAllItems = true` to include unused, test, cheat, and internal duplicate prefabs. Favorite item names are saved automatically in the same file.
+
+See the [item tag and catalog visibility reference](https://github.com/llleixx/ItemSpawnerEnhanced/blob/main/docs/ITEM_TAGS.md) for classification rules and the complete default-hidden list.
 
 ## Multiplayer behavior
 
@@ -97,3 +100,7 @@ Optimize a 16:10 screenshot for the README with:
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\build\Optimize-Screenshot.ps1 -InputPath .\screenshot.jpg -OutputPath .\docs\media\search-en-pack.webp
 ```
+
+## Acknowledgements
+
+Special thanks to my friend **「饺子」** for drawing the mod icon, and to the [PEAK Wiki community](https://peak.wiki.gg/) for documenting the game's items and mechanics.
