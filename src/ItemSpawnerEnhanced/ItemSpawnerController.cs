@@ -9,12 +9,17 @@ namespace ItemSpawnerEnhanced;
 internal sealed class ItemSpawnerController : IDisposable
 {
     private readonly ManualLogSource _logger;
+    private readonly ModConfig _settings;
+    private readonly FavoriteStore _favorites;
+    private readonly FilterSession _filterSession = new();
     private readonly Key _toggleKey;
     private ItemSpawnerWindow? _window;
 
     public ItemSpawnerController(ModConfig settings, ManualLogSource logger)
     {
         _logger = logger;
+        _settings = settings;
+        _favorites = new FavoriteStore(settings.FavoriteItemNamesEntry, logger);
         _toggleKey = settings.ToggleKey;
     }
 
@@ -25,7 +30,7 @@ internal sealed class ItemSpawnerController : IDisposable
 
         try
         {
-            _window = ItemSpawnerWindow.Create(_logger);
+            _window = ItemSpawnerWindow.Create(_logger, _settings, _favorites, _filterSession);
         }
         catch (Exception exception)
         {

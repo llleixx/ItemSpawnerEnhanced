@@ -1,10 +1,19 @@
 {
   "title": "Générateur d'objets",
   "searchPlaceholder": "Rechercher des objets...",
+  "clearTagsTooltip": "Effacer tous les tags",
   "smartTarget": "Cible intelligente",
   "youSuffix": "(Vous)",
   "noTarget": "Aucune cible disponible",
   "notConnected": "Aucune partie connectée",
   "spawnFailed": "Impossible de créer l'objet",
-  "noItems": "Aucun objet trouvé"
+  "noItems": "Aucun objet trouvé",
+  "favoriteSaveFailed": "Impossible d'enregistrer les favoris",
+  "tagFavorite": "Favoris",
+  "tagFood": "Nourriture",
+  "tagConsumable": "Consommables",
+  "tagEquipment": "Équipement",
+  "tagDeployable": "Déployables",
+  "tagMystical": "Mystiques",
+  "tagOther": "Autres"
 }

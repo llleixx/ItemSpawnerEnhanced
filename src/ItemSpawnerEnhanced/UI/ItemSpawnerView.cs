@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ItemSpawnerEnhanced.Core;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -17,7 +18,12 @@ internal sealed class ItemSpawnerView
     private readonly TextMeshProUGUI _status;
     private readonly RectTransform _itemContent;
     private readonly Button _close;
+    private readonly Button _searchClear;
+    private readonly Button _tagClear;
+    private readonly RawImage _tagClearIcon;
+    private readonly ItemNameTooltipTrigger _tagClearTooltip;
     private readonly ItemNameTooltip _tooltip;
+    private readonly IReadOnlyList<TagToggle> _tagToggles;
     private readonly List<ItemTile> _tiles = new();
     private bool? _spawnEnabled;
 
@@ -30,7 +36,12 @@ internal sealed class ItemSpawnerView
         TextMeshProUGUI status,
         RectTransform itemContent,
         Button close,
-        ItemNameTooltip tooltip)
+        Button searchClear,
+        Button tagClear,
+        RawImage tagClearIcon,
+        ItemNameTooltipTrigger tagClearTooltip,
+        ItemNameTooltip tooltip,
+        IReadOnlyList<TagToggle> tagToggles)
     {
         Root = root;
         _font = font;
@@ -40,7 +51,12 @@ internal sealed class ItemSpawnerView
         _status = status;
         _itemContent = itemContent;
         _close = close;
+        _searchClear = searchClear;
+        _tagClear = tagClear;
+        _tagClearIcon = tagClearIcon;
+        _tagClearTooltip = tagClearTooltip;
         _tooltip = tooltip;
+        _tagToggles = tagToggles;
     }
 
     public GameObject Root { get; }
@@ -79,21 +95,67 @@ internal sealed class ItemSpawnerView
             references.Status,
             references.ItemContent,
             references.Close,
-            references.Tooltip);
+            references.SearchClear,
+            references.TagClear,
+            references.TagClearIcon,
+            references.TagClearTooltip,
+            references.Tooltip,
+            references.TagToggles);
     }
 
-    public void Bind(UnityAction close, UnityAction<string> searchChanged, UnityAction<int> targetChanged)
+    public void Bind(
+        UnityAction close,
+        UnityAction<string> searchChanged,
+        UnityAction<int> targetChanged,
+        Action<ItemFilterTag, bool> tagChanged,
+        UnityAction clearTags)
     {
         _close.onClick.AddListener(close);
-        _search.onValueChanged.AddListener(searchChanged);
+        _search.onValueChanged.AddListener(query =>
+        {
+            UpdateSearchClearButton();
+            searchChanged(query);
+        });
+        _searchClear.onClick.AddListener(() =>
+        {
+            _search.SetTextWithoutNotify(string.Empty);
+            UpdateSearchClearButton();
+            searchChanged(string.Empty);
+            _search.ActivateInputField();
+        });
+        _tagClear.onClick.AddListener(() =>
+        {
+            _tooltip.Hide();
+            clearTags();
+        });
         _targetDropdown.onValueChanged.AddListener(targetChanged);
+        foreach (TagToggle tagToggle in _tagToggles)
+        {
+            TagToggle captured = tagToggle;
+            captured.Toggle.onValueChanged.AddListener(selected =>
+            {
+                captured.SetSelected(selected);
+                tagChanged(captured.Tag, selected);
+                UpdateTagClearButton();
+            });
+        }
     }
 
-    public void SetLocalizedChrome(string title, string searchPlaceholder)
+    public void SetLocalizedChrome(
+        string title,
+        string searchPlaceholder,
+        string clearTagsTooltip,
+        Func<ItemFilterTag, string> tagLabel)
     {
         _title.text = title;
         if (_search.placeholder is TMP_Text placeholder)
             placeholder.text = searchPlaceholder;
+        _tagClearTooltip.SetText(clearTagsTooltip);
+        foreach (TagToggle tagToggle in _tagToggles)
+        {
+            string label = tagLabel(tagToggle.Tag);
+            tagToggle.Label.text = label;
+        }
     }
 
     public void ActivateSearch() => _search.ActivateInputField();
@@ -112,11 +174,57 @@ internal sealed class ItemSpawnerView
         _spawnEnabled = null;
     }
 
-    public void AddItem(GameItemRecord record, UnityAction spawn)
+    public void AddItem(
+        GameItemRecord record,
+        UnityAction spawn,
+        UnityAction toggleFavorite,
+        bool isFavorite)
     {
-        ItemTile tile = RuntimeUiFactory.CreateItemTile(_itemContent, _font, record, spawn, _tooltip);
+        ItemTile tile = RuntimeUiFactory.CreateItemTile(
+            _itemContent,
+            _font,
+            record,
+            spawn,
+            toggleFavorite,
+            isFavorite,
+            _tooltip);
         tile.Button.interactable = false;
         _tiles.Add(tile);
+    }
+
+    public void SetFavorite(GameItemRecord record, bool isFavorite)
+    {
+        ItemTile? tile = _tiles.FirstOrDefault(candidate => candidate.Record == record);
+        tile?.SetFavorite(isFavorite);
+    }
+
+    public void SetFavoriteEnabled(bool enabled)
+    {
+        foreach (ItemTile tile in _tiles)
+            tile.FavoriteTrigger.InteractionEnabled = enabled;
+    }
+
+    public void SetSelectedTags(ItemFilterTag selectedTags)
+    {
+        foreach (TagToggle tagToggle in _tagToggles)
+        {
+            bool selected = (selectedTags & tagToggle.Tag) != 0;
+            tagToggle.Toggle.SetIsOnWithoutNotify(selected);
+            tagToggle.SetSelected(selected);
+        }
+        UpdateTagClearButton();
+    }
+
+    private void UpdateSearchClearButton() =>
+        _searchClear.gameObject.SetActive(!string.IsNullOrEmpty(_search.text));
+
+    private void UpdateTagClearButton()
+    {
+        bool enabled = _tagToggles.Any(tagToggle => tagToggle.Toggle.isOn);
+        _tagClear.interactable = enabled;
+        _tagClearIcon.color = enabled
+            ? RuntimeUiFactory.TextPrimary
+            : new Color(RuntimeUiFactory.TextMuted.r, RuntimeUiFactory.TextMuted.g, RuntimeUiFactory.TextMuted.b, 0.35f);
     }
 
     public void ShowSearchResults(IReadOnlyList<GameItemRecord> results)
@@ -182,7 +290,7 @@ internal sealed class ItemSpawnerView
         panel.anchorMin = new Vector2(0.5f, 0.5f);
         panel.anchorMax = new Vector2(0.5f, 0.5f);
         panel.pivot = new Vector2(0.5f, 0.5f);
-        panel.sizeDelta = new Vector2(1180, 780);
+        panel.sizeDelta = new Vector2(1250, 900);
         panel.GetComponent<Image>().color = RuntimeUiFactory.Panel;
 
         TextMeshProUGUI title = RuntimeUiFactory.CreateText(
@@ -206,7 +314,7 @@ internal sealed class ItemSpawnerView
         toolbar.anchorMax = new Vector2(0.5f, 1);
         toolbar.pivot = new Vector2(0.5f, 1);
         toolbar.anchoredPosition = new Vector2(0, -78);
-        toolbar.sizeDelta = new Vector2(1050, 52);
+        toolbar.sizeDelta = new Vector2(1120, 52);
         HorizontalLayoutGroup horizontal = toolbar.GetComponent<HorizontalLayoutGroup>();
         horizontal.spacing = 12;
         horizontal.childControlWidth = true;
@@ -215,25 +323,75 @@ internal sealed class ItemSpawnerView
         horizontal.childForceExpandHeight = true;
 
         TMP_InputField search = RuntimeUiFactory.CreateInputField(toolbar, font);
+        Button searchClear = RuntimeUiFactory.CreateSearchClearButton(search.transform);
         TMP_Dropdown dropdown = RuntimeUiFactory.CreateDropdown(toolbar, font);
+
+        RectTransform tagBar = RuntimeUiFactory.CreateRect("Tags", panel, typeof(HorizontalLayoutGroup));
+        tagBar.anchorMin = new Vector2(0.5f, 1);
+        tagBar.anchorMax = new Vector2(0.5f, 1);
+        tagBar.pivot = new Vector2(0.5f, 1);
+        tagBar.anchoredPosition = new Vector2(0, -148);
+        tagBar.sizeDelta = new Vector2(1120, 52);
+        HorizontalLayoutGroup tagLayout = tagBar.GetComponent<HorizontalLayoutGroup>();
+        tagLayout.spacing = 8;
+        tagLayout.childControlWidth = true;
+        tagLayout.childControlHeight = true;
+        tagLayout.childForceExpandWidth = true;
+        tagLayout.childForceExpandHeight = true;
+
+        ItemFilterTag[] filterTags =
+        {
+            ItemFilterTag.Favorite,
+            ItemFilterTag.Food,
+            ItemFilterTag.Consumable,
+            ItemFilterTag.Equipment,
+            ItemFilterTag.Deployable,
+            ItemFilterTag.Mystical,
+            ItemFilterTag.Other
+        };
+        TagToggle[] tagToggles = filterTags
+            .Select(tag => RuntimeUiFactory.CreateTagToggle(tagBar, font, tag))
+            .ToArray();
+
+        (Button tagClear, RawImage tagClearIcon) = RuntimeUiFactory.CreateFilterClearButton(panel);
+        RectTransform tagClearRect = tagClear.GetComponent<RectTransform>();
+        tagClearRect.anchorMin = new Vector2(0.5f, 1);
+        tagClearRect.anchorMax = new Vector2(0.5f, 1);
+        tagClearRect.pivot = new Vector2(0, 1);
+        tagClearRect.anchoredPosition = new Vector2(568, -148);
+        tagClearRect.sizeDelta = new Vector2(44, 52);
 
         TextMeshProUGUI status = RuntimeUiFactory.CreateText(
             "Status", panel, font, 18, RuntimeUiFactory.TextMuted, TextAlignmentOptions.MidlineLeft);
         status.rectTransform.anchorMin = new Vector2(0, 1);
         status.rectTransform.anchorMax = new Vector2(1, 1);
         status.rectTransform.pivot = new Vector2(0.5f, 1);
-        status.rectTransform.anchoredPosition = new Vector2(0, -137);
-        status.rectTransform.sizeDelta = new Vector2(-56, 26);
+        status.rectTransform.anchoredPosition = new Vector2(0, -201);
+        status.rectTransform.sizeDelta = new Vector2(-56, 18);
 
         (ScrollRect scroll, RectTransform content) = RuntimeUiFactory.CreateItemScroll(panel);
         RectTransform scrollRect = scroll.GetComponent<RectTransform>();
         scrollRect.anchorMin = Vector2.zero;
         scrollRect.anchorMax = Vector2.one;
         scrollRect.offsetMin = new Vector2(24, 24);
-        scrollRect.offsetMax = new Vector2(-24, -166);
+        scrollRect.offsetMax = new Vector2(-24, -221);
 
         ItemNameTooltip tooltip = RuntimeUiFactory.CreateItemTooltip(panel, font);
-        references = new ViewReferences(title, search, dropdown, status, content, close, tooltip);
+        ItemNameTooltipTrigger tagClearTooltip = tagClear.gameObject.AddComponent<ItemNameTooltipTrigger>();
+        tagClearTooltip.Configure(tooltip, string.Empty);
+        references = new ViewReferences(
+            title,
+            search,
+            dropdown,
+            status,
+            content,
+            close,
+            searchClear,
+            tagClear,
+            tagClearIcon,
+            tagClearTooltip,
+            tooltip,
+            tagToggles);
     }
 
     private readonly struct ViewReferences
@@ -245,7 +403,12 @@ internal sealed class ItemSpawnerView
             TextMeshProUGUI status,
             RectTransform itemContent,
             Button close,
-            ItemNameTooltip tooltip)
+            Button searchClear,
+            Button tagClear,
+            RawImage tagClearIcon,
+            ItemNameTooltipTrigger tagClearTooltip,
+            ItemNameTooltip tooltip,
+            IReadOnlyList<TagToggle> tagToggles)
         {
             Title = title;
             Search = search;
@@ -253,7 +416,12 @@ internal sealed class ItemSpawnerView
             Status = status;
             ItemContent = itemContent;
             Close = close;
+            SearchClear = searchClear;
+            TagClear = tagClear;
+            TagClearIcon = tagClearIcon;
+            TagClearTooltip = tagClearTooltip;
             Tooltip = tooltip;
+            TagToggles = tagToggles;
         }
 
         public TextMeshProUGUI Title { get; }
@@ -262,6 +430,11 @@ internal sealed class ItemSpawnerView
         public TextMeshProUGUI Status { get; }
         public RectTransform ItemContent { get; }
         public Button Close { get; }
+        public Button SearchClear { get; }
+        public Button TagClear { get; }
+        public RawImage TagClearIcon { get; }
+        public ItemNameTooltipTrigger TagClearTooltip { get; }
         public ItemNameTooltip Tooltip { get; }
+        public IReadOnlyList<TagToggle> TagToggles { get; }
     }
 }

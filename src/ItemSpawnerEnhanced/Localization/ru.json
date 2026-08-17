@@ -1,10 +1,19 @@
 {
   "title": "Создание предметов",
   "searchPlaceholder": "Поиск предметов...",
+  "clearTagsTooltip": "Очистить все теги",
   "smartTarget": "Умная цель",
   "youSuffix": "(Вы)",
   "noTarget": "Нет доступной цели",
   "notConnected": "Нет подключения к игре",
   "spawnFailed": "Не удалось создать предмет",
-  "noItems": "Предметы не найдены"
+  "noItems": "Предметы не найдены",
+  "favoriteSaveFailed": "Не удалось сохранить избранное",
+  "tagFavorite": "Избранное",
+  "tagFood": "Еда",
+  "tagConsumable": "Расходники",
+  "tagEquipment": "Снаряжение",
+  "tagDeployable": "Размещаемые",
+  "tagMystical": "Мистические",
+  "tagOther": "Прочее"
 }

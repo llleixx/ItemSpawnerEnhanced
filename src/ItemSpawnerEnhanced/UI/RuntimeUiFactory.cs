@@ -1,13 +1,19 @@
 using System;
+using ItemSpawnerEnhanced.Core;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace ItemSpawnerEnhanced.UI;
 
 internal static class RuntimeUiFactory
 {
+    private static Texture2D? _heartTexture;
+    private static Texture2D? _filterClearTexture;
+    private static Texture2D? _searchClearTexture;
+
     internal static readonly Color Backdrop = new(0.035f, 0.043f, 0.047f, 0.88f);
     internal static readonly Color Panel = new(0.10f, 0.115f, 0.12f, 0.98f);
     internal static readonly Color Surface = new(0.16f, 0.175f, 0.18f, 1f);
@@ -16,6 +22,7 @@ internal static class RuntimeUiFactory
     internal static readonly Color TextPrimary = new(0.95f, 0.96f, 0.94f, 1f);
     internal static readonly Color TextMuted = new(0.68f, 0.71f, 0.69f, 1f);
     internal static readonly Color Error = new(0.94f, 0.52f, 0.42f, 1f);
+    internal static readonly Color Favorite = new(0.95f, 0.38f, 0.52f, 1f);
 
     public static RectTransform CreateRect(string name, Transform parent, params Type[] components)
     {
@@ -85,7 +92,7 @@ internal static class RuntimeUiFactory
         layout.minHeight = 52;
 
         RectTransform viewport = CreateRect("Text Area", root, typeof(RectMask2D));
-        Stretch(viewport, 18, 18, 5, 5);
+        Stretch(viewport, 18, 54, 5, 5);
 
         TextMeshProUGUI placeholder = CreateText("Placeholder", viewport, font, 24, TextMuted, TextAlignmentOptions.MidlineLeft);
         placeholder.fontStyle = FontStyles.Italic;
@@ -105,6 +112,49 @@ internal static class RuntimeUiFactory
         input.selectionColor = new Color(Accent.r, Accent.g, Accent.b, 0.35f);
         input.customCaretColor = true;
         return input;
+    }
+
+    public static Button CreateSearchClearButton(Transform parent)
+    {
+        RectTransform rect = CreateRect("ClearSearch", parent, typeof(Image), typeof(Button));
+        Image background = rect.GetComponent<Image>();
+        background.color = Color.white;
+        Button button = rect.GetComponent<Button>();
+        button.targetGraphic = background;
+        button.colors = ButtonColors();
+
+        RectTransform iconRect = CreateRect("Icon", rect, typeof(RawImage));
+        Stretch(iconRect, 9, 9, 9, 9);
+        RawImage icon = iconRect.GetComponent<RawImage>();
+        icon.texture = SearchClearTexture;
+        icon.color = TextPrimary;
+        icon.raycastTarget = false;
+
+        rect.anchorMin = new Vector2(1, 0.5f);
+        rect.anchorMax = new Vector2(1, 0.5f);
+        rect.pivot = new Vector2(1, 0.5f);
+        rect.anchoredPosition = new Vector2(-6, 0);
+        rect.sizeDelta = new Vector2(40, 40);
+        button.gameObject.SetActive(false);
+        return button;
+    }
+
+    public static (Button Button, RawImage Icon) CreateFilterClearButton(Transform parent)
+    {
+        RectTransform root = CreateRect("ClearTags", parent, typeof(Image), typeof(Button));
+        Image background = root.GetComponent<Image>();
+        background.color = Surface;
+        Button button = root.GetComponent<Button>();
+        button.targetGraphic = background;
+        button.colors = ButtonColors();
+
+        RectTransform iconRect = CreateRect("Icon", root, typeof(RawImage));
+        Stretch(iconRect, 8, 8, 10, 10);
+        RawImage icon = iconRect.GetComponent<RawImage>();
+        icon.texture = FilterClearTexture;
+        icon.color = TextPrimary;
+        icon.raycastTarget = false;
+        return (button, icon);
     }
 
     public static TMP_Dropdown CreateDropdown(Transform parent, TMP_FontAsset font)
@@ -216,6 +266,49 @@ internal static class RuntimeUiFactory
         return (scroll, content);
     }
 
+    public static TagToggle CreateTagToggle(
+        Transform parent,
+        TMP_FontAsset font,
+        ItemFilterTag tag)
+    {
+        RectTransform root = CreateRect(tag.ToString(), parent, typeof(Image), typeof(Toggle), typeof(LayoutElement));
+        LayoutElement layout = root.GetComponent<LayoutElement>();
+        layout.minHeight = 52;
+        layout.flexibleWidth = 1;
+
+        Image background = root.GetComponent<Image>();
+        Toggle toggle = root.GetComponent<Toggle>();
+        toggle.targetGraphic = background;
+        toggle.graphic = null;
+
+        TextMeshProUGUI label = CreateText(
+            "Label", root, font, 17, TextPrimary, TextAlignmentOptions.Center);
+        label.maxVisibleLines = 2;
+        RawImage? heart = null;
+        if (tag == ItemFilterTag.Favorite)
+        {
+            RectTransform heartRect = CreateRect("Heart", root, typeof(RawImage));
+            heartRect.anchorMin = new Vector2(0, 0.5f);
+            heartRect.anchorMax = new Vector2(0, 0.5f);
+            heartRect.pivot = new Vector2(0, 0.5f);
+            heartRect.anchoredPosition = new Vector2(11, 0);
+            heartRect.sizeDelta = new Vector2(18, 18);
+            heart = heartRect.GetComponent<RawImage>();
+            heart.texture = HeartTexture;
+            heart.color = TextPrimary;
+            heart.raycastTarget = false;
+            Stretch(label.rectTransform, 28, 5, 2, 2);
+        }
+        else
+        {
+            Stretch(label.rectTransform, 5, 5, 2, 2);
+        }
+
+        var result = new TagToggle(tag, toggle, background, label, heart);
+        result.SetSelected(false);
+        return result;
+    }
+
     public static ItemNameTooltip CreateItemTooltip(RectTransform parent, TMP_FontAsset font)
     {
         RectTransform visual = CreateRect("ItemTooltip", parent, typeof(Image));
@@ -241,6 +334,8 @@ internal static class RuntimeUiFactory
         TMP_FontAsset font,
         GameItemRecord record,
         UnityAction onClick,
+        UnityAction onFavorite,
+        bool isFavorite,
         ItemNameTooltip tooltip)
     {
         RectTransform root = CreateRect(record.Item.name, parent, typeof(Image), typeof(Button));
@@ -269,8 +364,26 @@ internal static class RuntimeUiFactory
         label.rectTransform.pivot = new Vector2(0.5f, 0);
         label.rectTransform.anchoredPosition = new Vector2(0, 6);
         label.rectTransform.sizeDelta = new Vector2(-14, 38);
+
+        RectTransform favoriteMarker = CreateRect("Favorite", root);
+        favoriteMarker.anchorMin = new Vector2(1, 1);
+        favoriteMarker.anchorMax = new Vector2(1, 1);
+        favoriteMarker.pivot = new Vector2(1, 1);
+        favoriteMarker.anchoredPosition = new Vector2(-6, -6);
+        favoriteMarker.sizeDelta = new Vector2(32, 32);
+
+        RectTransform favoriteHeart = CreateRect("Heart", favoriteMarker, typeof(RawImage));
+        Stretch(favoriteHeart, 3, 3, 3, 3);
+        RawImage favoriteHeartImage = favoriteHeart.GetComponent<RawImage>();
+        favoriteHeartImage.texture = HeartTexture;
+        favoriteHeartImage.color = Favorite;
+        favoriteHeartImage.raycastTarget = false;
+        favoriteMarker.gameObject.SetActive(isFavorite);
+
+        ItemFavoriteTrigger favoriteTrigger = root.gameObject.AddComponent<ItemFavoriteTrigger>();
+        favoriteTrigger.Configure(onFavorite);
         root.gameObject.AddComponent<ItemNameTooltipTrigger>().Configure(tooltip, record.DisplayName);
-        return new ItemTile(record, root.gameObject, button);
+        return new ItemTile(record, root.gameObject, button, favoriteMarker.gameObject, favoriteTrigger);
     }
 
     private static ColorBlock ButtonColors()
@@ -285,18 +398,213 @@ internal static class RuntimeUiFactory
         colors.fadeDuration = 0.08f;
         return colors;
     }
+
+    private static Texture2D HeartTexture => _heartTexture ??= CreateHeartTexture();
+
+    private static Texture2D FilterClearTexture => _filterClearTexture ??= CreateFilterClearTexture();
+
+    private static Texture2D SearchClearTexture => _searchClearTexture ??= CreateSearchClearTexture();
+
+    private static Texture2D CreateHeartTexture()
+    {
+        const int size = 32;
+        const int samplesPerAxis = 4;
+        var texture = new Texture2D(size, size, TextureFormat.RGBA32, mipChain: false)
+        {
+            name = "ItemSpawnerEnhanced Heart",
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp,
+            hideFlags = HideFlags.HideAndDontSave
+        };
+        var pixels = new Color32[size * size];
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                int insideSamples = 0;
+                for (int sampleY = 0; sampleY < samplesPerAxis; sampleY++)
+                {
+                    for (int sampleX = 0; sampleX < samplesPerAxis; sampleX++)
+                    {
+                        float pointX = x + (sampleX + 0.5f) / samplesPerAxis;
+                        float pointY = y + (sampleY + 0.5f) / samplesPerAxis;
+                        float normalizedX = (pointX - 16f) / 11f;
+                        float normalizedY = (pointY - 14.5f) / 11f;
+                        float sum = normalizedX * normalizedX + normalizedY * normalizedY - 1f;
+                        if (sum * sum * sum - normalizedX * normalizedX * normalizedY * normalizedY * normalizedY <= 0f)
+                            insideSamples++;
+                    }
+                }
+
+                byte alpha = (byte)(255 * insideSamples / (samplesPerAxis * samplesPerAxis));
+                pixels[y * size + x] = new Color32(255, 255, 255, alpha);
+            }
+        }
+
+        texture.SetPixels32(pixels);
+        texture.Apply(updateMipmaps: false, makeNoLongerReadable: true);
+        return texture;
+    }
+
+    private static Texture2D CreateFilterClearTexture() => CreateLineTexture(
+        "ItemSpawnerEnhanced Clear Filters",
+        new Vector2[]
+        {
+            new(4, 26), new(27, 26),
+            new(4, 26), new(13, 16),
+            new(27, 26), new(20, 18),
+            new(13, 16), new(13, 5),
+            new(13, 5), new(18, 8),
+            new(18, 8), new(18, 14),
+            new(20, 15), new(28, 7),
+            new(28, 15), new(20, 7)
+        });
+
+    private static Texture2D CreateSearchClearTexture() => CreateLineTexture(
+        "ItemSpawnerEnhanced Clear Search",
+        new Vector2[]
+        {
+            new(7, 7), new(25, 25),
+            new(25, 7), new(7, 25)
+        });
+
+    private static Texture2D CreateLineTexture(string name, Vector2[] segments)
+    {
+        const int size = 32;
+        const int samplesPerAxis = 4;
+        const float halfStroke = 1.35f;
+        var texture = new Texture2D(size, size, TextureFormat.RGBA32, mipChain: false)
+        {
+            name = name,
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp,
+            hideFlags = HideFlags.HideAndDontSave
+        };
+        var pixels = new Color32[size * size];
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                int insideSamples = 0;
+                for (int sampleY = 0; sampleY < samplesPerAxis; sampleY++)
+                {
+                    for (int sampleX = 0; sampleX < samplesPerAxis; sampleX++)
+                    {
+                        Vector2 point = new(
+                            x + (sampleX + 0.5f) / samplesPerAxis,
+                            y + (sampleY + 0.5f) / samplesPerAxis);
+                        for (int segment = 0; segment < segments.Length; segment += 2)
+                        {
+                            if (DistanceToSegment(point, segments[segment], segments[segment + 1]) <= halfStroke)
+                            {
+                                insideSamples++;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                byte alpha = (byte)(255 * insideSamples / (samplesPerAxis * samplesPerAxis));
+                pixels[y * size + x] = new Color32(255, 255, 255, alpha);
+            }
+        }
+
+        texture.SetPixels32(pixels);
+        texture.Apply(updateMipmaps: false, makeNoLongerReadable: true);
+        return texture;
+    }
+
+    private static float DistanceToSegment(Vector2 point, Vector2 start, Vector2 end)
+    {
+        Vector2 segment = end - start;
+        float lengthSquared = segment.sqrMagnitude;
+        if (lengthSquared <= Mathf.Epsilon)
+            return Vector2.Distance(point, start);
+        float position = Mathf.Clamp01(Vector2.Dot(point - start, segment) / lengthSquared);
+        return Vector2.Distance(point, start + segment * position);
+    }
 }
 
 internal sealed class ItemTile
 {
-    public ItemTile(GameItemRecord record, GameObject gameObject, Button button)
+    public ItemTile(
+        GameItemRecord record,
+        GameObject gameObject,
+        Button button,
+        GameObject favoriteMarker,
+        ItemFavoriteTrigger favoriteTrigger)
     {
         Record = record;
         GameObject = gameObject;
         Button = button;
+        FavoriteMarker = favoriteMarker;
+        FavoriteTrigger = favoriteTrigger;
     }
 
     public GameItemRecord Record { get; }
     public GameObject GameObject { get; }
     public Button Button { get; }
+    public GameObject FavoriteMarker { get; }
+    public ItemFavoriteTrigger FavoriteTrigger { get; }
+
+    public void SetFavorite(bool favorite) => FavoriteMarker.SetActive(favorite);
+}
+
+internal sealed class TagToggle
+{
+    private readonly Image _background;
+    private readonly RawImage? _heart;
+
+    public TagToggle(
+        ItemFilterTag tag,
+        Toggle toggle,
+        Image background,
+        TMP_Text label,
+        RawImage? heart)
+    {
+        Tag = tag;
+        Toggle = toggle;
+        _background = background;
+        Label = label;
+        _heart = heart;
+    }
+
+    public ItemFilterTag Tag { get; }
+    public Toggle Toggle { get; }
+    public TMP_Text Label { get; }
+
+    public void SetSelected(bool selected)
+    {
+        Color normal = selected ? RuntimeUiFactory.Accent : RuntimeUiFactory.Surface;
+        ColorBlock colors = ColorBlock.defaultColorBlock;
+        colors.normalColor = normal;
+        colors.highlightedColor = selected
+            ? Color.Lerp(RuntimeUiFactory.Accent, Color.white, 0.12f)
+            : RuntimeUiFactory.SurfaceHover;
+        colors.pressedColor = RuntimeUiFactory.Accent;
+        colors.selectedColor = colors.highlightedColor;
+        colors.disabledColor = new Color(normal.r, normal.g, normal.b, 0.45f);
+        colors.colorMultiplier = 1;
+        colors.fadeDuration = 0.08f;
+        Toggle.colors = colors;
+        _background.color = normal;
+        Label.color = selected ? RuntimeUiFactory.Panel : RuntimeUiFactory.TextPrimary;
+        if (_heart != null)
+            _heart.color = selected ? RuntimeUiFactory.Panel : RuntimeUiFactory.TextPrimary;
+    }
+}
+
+internal sealed class ItemFavoriteTrigger : MonoBehaviour, IPointerClickHandler
+{
+    private UnityAction? _onFavorite;
+
+    public bool InteractionEnabled { get; set; }
+
+    public void Configure(UnityAction onFavorite) => _onFavorite = onFavorite;
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (InteractionEnabled && eventData.button == PointerEventData.InputButton.Right)
+            _onFavorite?.Invoke();
+    }
 }

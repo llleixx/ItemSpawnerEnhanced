@@ -1,10 +1,19 @@
 {
   "title": "Generator przedmiotów",
   "searchPlaceholder": "Szukaj przedmiotów...",
+  "clearTagsTooltip": "Wyczyść wszystkie tagi",
   "smartTarget": "Inteligentny cel",
   "youSuffix": "(Ty)",
   "noTarget": "Brak dostępnego celu",
   "notConnected": "Brak połączenia z grą",
   "spawnFailed": "Nie udało się utworzyć przedmiotu",
-  "noItems": "Nie znaleziono przedmiotów"
+  "noItems": "Nie znaleziono przedmiotów",
+  "favoriteSaveFailed": "Nie udało się zapisać ulubionych",
+  "tagFavorite": "Ulubione",
+  "tagFood": "Jedzenie",
+  "tagConsumable": "Zużywalne",
+  "tagEquipment": "Wyposażenie",
+  "tagDeployable": "Rozstawiane",
+  "tagMystical": "Mistyczne",
+  "tagOther": "Inne"
 }

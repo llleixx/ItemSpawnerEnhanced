@@ -1,10 +1,19 @@
 {
   "title": "Generatore di oggetti",
   "searchPlaceholder": "Cerca oggetti...",
+  "clearTagsTooltip": "Cancella tutti i tag",
   "smartTarget": "Bersaglio intelligente",
   "youSuffix": "(Tu)",
   "noTarget": "Nessun bersaglio disponibile",
   "notConnected": "Non connesso a una partita",
   "spawnFailed": "Impossibile generare l'oggetto",
-  "noItems": "Nessun oggetto trovato"
+  "noItems": "Nessun oggetto trovato",
+  "favoriteSaveFailed": "Impossibile salvare i preferiti",
+  "tagFavorite": "Preferiti",
+  "tagFood": "Cibo",
+  "tagConsumable": "Consumabili",
+  "tagEquipment": "Equipaggiamento",
+  "tagDeployable": "Posizionabili",
+  "tagMystical": "Mistici",
+  "tagOther": "Altro"
 }

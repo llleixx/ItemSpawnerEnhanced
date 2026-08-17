@@ -1,10 +1,19 @@
 {
   "title": "Item Spawner",
   "searchPlaceholder": "Search items...",
+  "clearTagsTooltip": "Clear all tags",
   "smartTarget": "Smart target",
   "youSuffix": "(You)",
   "noTarget": "No target available",
   "notConnected": "Not connected to a game",
   "spawnFailed": "Could not spawn item",
-  "noItems": "No items found"
+  "noItems": "No items found",
+  "favoriteSaveFailed": "Could not save favorites",
+  "tagFavorite": "Favorites",
+  "tagFood": "Food",
+  "tagConsumable": "Consumables",
+  "tagEquipment": "Equipment",
+  "tagDeployable": "Deployables",
+  "tagMystical": "Mystical",
+  "tagOther": "Other"
 }

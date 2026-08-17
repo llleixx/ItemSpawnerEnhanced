@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -21,6 +22,9 @@ internal sealed class ItemSpawnerWindow : MenuWindow
     private static readonly MethodInfo CloseMethod = AccessTools.Method(typeof(MenuWindow), "Close");
 
     private ManualLogSource _logger = null!;
+    private ModConfig _settings = null!;
+    private FavoriteStore _favorites = null!;
+    private FilterSession _filterSession = null!;
     private LocalizationCatalog _localization = null!;
     private GameItemCatalog _catalog = null!;
     private PlayerTargetController _targetController = null!;
@@ -43,11 +47,15 @@ internal sealed class ItemSpawnerWindow : MenuWindow
     public override bool autoHideOnClose => true;
     public override GameObject panel => gameObject;
 
-    public static ItemSpawnerWindow Create(ManualLogSource logger)
+    public static ItemSpawnerWindow Create(
+        ManualLogSource logger,
+        ModConfig settings,
+        FavoriteStore favorites,
+        FilterSession filterSession)
     {
         ItemSpawnerView view = ItemSpawnerView.Create();
         ItemSpawnerWindow window = view.Root.AddComponent<ItemSpawnerWindow>();
-        window.Configure(logger, view);
+        window.Configure(logger, settings, favorites, filterSession, view);
         return window;
     }
 
@@ -73,6 +81,8 @@ internal sealed class ItemSpawnerWindow : MenuWindow
         _rebuildRoutine = null;
         _refresh.Abort();
         LocalizedText.OnLangugageChanged -= OnLanguageChanged;
+        if (_settings != null)
+            _settings.TagMatchModeEntry.SettingChanged -= OnTagMatchModeChanged;
     }
 
     protected override void Update()
@@ -137,15 +147,25 @@ internal sealed class ItemSpawnerWindow : MenuWindow
         base.OnClose();
     }
 
-    private void Configure(ManualLogSource logger, ItemSpawnerView view)
+    private void Configure(
+        ManualLogSource logger,
+        ModConfig settings,
+        FavoriteStore favorites,
+        FilterSession filterSession,
+        ItemSpawnerView view)
     {
         _logger = logger;
+        _settings = settings;
+        _favorites = favorites;
+        _filterSession = filterSession;
         _view = view;
         _localization = new LocalizationCatalog(Assembly.GetExecutingAssembly());
         _catalog = new GameItemCatalog(logger);
         _targetController = new PlayerTargetController(new PlayerTargetService(logger), view, Localize);
-        _view.Bind(ToggleWindow, ApplySearch, OnTargetChanged);
+        _view.Bind(ToggleWindow, ApplySearch, OnTargetChanged, OnTagChanged, ClearTags);
+        _view.SetSelectedTags(_filterSession.SelectedTags);
         LocalizedText.OnLangugageChanged += OnLanguageChanged;
+        _settings.TagMatchModeEntry.SettingChanged += OnTagMatchModeChanged;
         ApplyLocalizedChrome();
     }
 
@@ -161,6 +181,7 @@ internal sealed class ItemSpawnerWindow : MenuWindow
 
         if (_rebuildRoutine != null)
             StopCoroutine(_rebuildRoutine);
+        _view.SetFavoriteEnabled(false);
         _rebuildRoutine = StartCoroutine(RebuildRequiredIncrementally());
     }
 
@@ -218,7 +239,11 @@ internal sealed class ItemSpawnerWindow : MenuWindow
             GameItemRecord captured = record;
             try
             {
-                _view.AddItem(record, () => Spawn(captured));
+                _view.AddItem(
+                    record,
+                    () => Spawn(captured),
+                    () => ToggleFavorite(captured),
+                    _favorites.IsFavorite(record.Item.name));
             }
             catch (Exception exception)
             {
@@ -264,6 +289,7 @@ internal sealed class ItemSpawnerWindow : MenuWindow
         _rebuildRoutine = null;
         _refresh.Finish();
         _nextRebuildAttempt = failed ? Time.unscaledTime + 2f : 0f;
+        _view.SetFavoriteEnabled(!failed);
         if (failed)
             _view.SetStatus("...", isError: true);
     }
@@ -273,7 +299,13 @@ internal sealed class ItemSpawnerWindow : MenuWindow
         if (IsRebuilding || (_refresh.Pending & RefreshRequirement.SearchIndex) != 0)
             return;
 
-        IReadOnlyList<GameItemRecord> results = _catalog.Search(query);
+        IReadOnlyList<GameItemRecord> results = _catalog.Search(query)
+            .Where(record => ItemFilterMatcher.Matches(
+                record.Tags,
+                _favorites.IsFavorite(record.Item.name),
+                _filterSession.SelectedTags,
+                _settings.TagMatchMode))
+            .ToArray();
         _view.ShowSearchResults(results);
         RefreshStatus();
     }
@@ -282,6 +314,43 @@ internal sealed class ItemSpawnerWindow : MenuWindow
     {
         if (_targetController.Select(index))
             RefreshStatus();
+    }
+
+    private void OnTagChanged(ItemFilterTag tag, bool selected)
+    {
+        if (selected)
+            _filterSession.SelectedTags |= tag;
+        else
+            _filterSession.SelectedTags &= ~tag;
+        ApplySearch(_view.SearchText);
+    }
+
+    private void ClearTags()
+    {
+        if (_filterSession.SelectedTags == ItemFilterTag.None)
+            return;
+
+        _filterSession.SelectedTags = ItemFilterTag.None;
+        _view.SetSelectedTags(ItemFilterTag.None);
+        ApplySearch(_view.SearchText);
+    }
+
+    private void OnTagMatchModeChanged(object? sender, EventArgs eventArgs)
+    {
+        if (isOpen)
+            ApplySearch(_view.SearchText);
+    }
+
+    private void ToggleFavorite(GameItemRecord record)
+    {
+        if (!_favorites.TryToggle(record.Item.name, out bool isFavorite))
+        {
+            SetStatus("favoriteSaveFailed", isError: true);
+            return;
+        }
+
+        _view.SetFavorite(record, isFavorite);
+        ApplySearch(_view.SearchText);
     }
 
     private void RefreshStatus()
@@ -327,7 +396,21 @@ internal sealed class ItemSpawnerWindow : MenuWindow
     }
 
     private void ApplyLocalizedChrome() =>
-        _view.SetLocalizedChrome(Localize("title"), Localize("searchPlaceholder"));
+        _view.SetLocalizedChrome(
+            Localize("title"),
+            Localize("searchPlaceholder"),
+            Localize("clearTagsTooltip"),
+            tag => Localize(tag switch
+            {
+                ItemFilterTag.Favorite => "tagFavorite",
+                ItemFilterTag.Food => "tagFood",
+                ItemFilterTag.Consumable => "tagConsumable",
+                ItemFilterTag.Equipment => "tagEquipment",
+                ItemFilterTag.Deployable => "tagDeployable",
+                ItemFilterTag.Mystical => "tagMystical",
+                ItemFilterTag.Other => "tagOther",
+                _ => throw new ArgumentOutOfRangeException(nameof(tag), tag, null)
+            }));
 
     private string Localize(string key) => _localization.Get(GameLanguage.CurrentCode, key);
 

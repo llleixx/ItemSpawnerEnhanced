@@ -1,10 +1,19 @@
 {
   "title": "物品生成器",
   "searchPlaceholder": "搜尋物品...",
+  "clearTagsTooltip": "清除所有標籤",
   "smartTarget": "智慧目標",
   "youSuffix": "（你）",
   "noTarget": "沒有可用目標",
   "notConnected": "尚未連線到遊戲",
   "spawnFailed": "無法生成物品",
-  "noItems": "找不到物品"
+  "noItems": "找不到物品",
+  "favoriteSaveFailed": "無法儲存收藏",
+  "tagFavorite": "收藏",
+  "tagFood": "食物",
+  "tagConsumable": "消耗品",
+  "tagEquipment": "裝備",
+  "tagDeployable": "放置物",
+  "tagMystical": "神秘物品",
+  "tagOther": "其他"
 }

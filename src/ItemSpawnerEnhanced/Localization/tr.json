@@ -1,10 +1,19 @@
 {
   "title": "Eşya oluşturucu",
   "searchPlaceholder": "Eşya ara...",
+  "clearTagsTooltip": "Tüm etiketleri temizle",
   "smartTarget": "Akıllı hedef",
   "youSuffix": "(Sen)",
   "noTarget": "Kullanılabilir hedef yok",
   "notConnected": "Bir oyuna bağlı değilsin",
   "spawnFailed": "Eşya oluşturulamadı",
-  "noItems": "Eşya bulunamadı"
+  "noItems": "Eşya bulunamadı",
+  "favoriteSaveFailed": "Favoriler kaydedilemedi",
+  "tagFavorite": "Favoriler",
+  "tagFood": "Yiyecek",
+  "tagConsumable": "Tüketilebilir",
+  "tagEquipment": "Ekipman",
+  "tagDeployable": "Yerleştirilebilir",
+  "tagMystical": "Mistik",
+  "tagOther": "Diğer"
 }

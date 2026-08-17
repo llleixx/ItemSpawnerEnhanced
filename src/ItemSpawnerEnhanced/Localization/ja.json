@@ -1,10 +1,19 @@
 {
   "title": "アイテム生成",
   "searchPlaceholder": "アイテムを検索...",
+  "clearTagsTooltip": "すべてのタグを解除",
   "smartTarget": "スマートターゲット",
   "youSuffix": "（自分）",
   "noTarget": "対象がいません",
   "notConnected": "ゲームに接続されていません",
   "spawnFailed": "アイテムを生成できませんでした",
-  "noItems": "アイテムが見つかりません"
+  "noItems": "アイテムが見つかりません",
+  "favoriteSaveFailed": "お気に入りを保存できませんでした",
+  "tagFavorite": "お気に入り",
+  "tagFood": "食べ物",
+  "tagConsumable": "消耗品",
+  "tagEquipment": "装備",
+  "tagDeployable": "設置物",
+  "tagMystical": "神秘",
+  "tagOther": "その他"
 }

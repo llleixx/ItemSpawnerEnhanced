@@ -22,6 +22,8 @@ A client-side item spawner for PEAK built for players across **every supported g
 - **Smart targeting:** Spawn for yourself while alive or automatically target the Scout you are spectating after death.
 - **Any Scout:** Select any available Scout in the room from the target dropdown.
 - **Modded item support:** Discover items registered in PEAK's item database, including items added by other mods.
+- **Tag filtering:** Combine Food, Consumables, Equipment, Deployables, Mystical, and Other tags using configurable AND or OR matching.
+- **Persistent favorites:** Right-click an item to favorite it, mark its tile with a heart, and filter favorites like any other tag.
 - **Fully localized UI:** Use interface text for every language currently supported by PEAK.
 - **Native multiplayer spawning:** Spawn through PEAK's built-in network RPC, with exactly one item created per click.
 
@@ -72,7 +74,7 @@ After installation, both plugin files should be at:
 <PEAK>/BepInEx/plugins/ItemSpawnerEnhanced/ItemSpawnerEnhanced.ChineseSearch.dll
 ```
 
-The toggle key can be changed in **`BepInEx/config/com.github.lllei.ItemSpawnerEnhanced.cfg`**.
+The toggle key and tag matching mode can be changed in **`BepInEx/config/com.github.lllei.ItemSpawnerEnhanced.cfg`**. Tag matching defaults to `And`; set `TagMatchMode = Or` to show items matching any selected tag. Favorite item names are saved automatically in the same file.
 
 ## Multiplayer behavior
 

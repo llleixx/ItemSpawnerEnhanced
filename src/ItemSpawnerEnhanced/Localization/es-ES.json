@@ -1,10 +1,19 @@
 {
   "title": "Generador de objetos",
   "searchPlaceholder": "Buscar objetos...",
+  "clearTagsTooltip": "Borrar todas las etiquetas",
   "smartTarget": "Objetivo inteligente",
   "youSuffix": "(Tú)",
   "noTarget": "No hay ningún objetivo disponible",
   "notConnected": "No estás conectado a una partida",
   "spawnFailed": "No se pudo generar el objeto",
-  "noItems": "No se encontraron objetos"
+  "noItems": "No se encontraron objetos",
+  "favoriteSaveFailed": "No se pudieron guardar los favoritos",
+  "tagFavorite": "Favoritos",
+  "tagFood": "Comida",
+  "tagConsumable": "Consumibles",
+  "tagEquipment": "Equipo",
+  "tagDeployable": "Desplegables",
+  "tagMystical": "Místicos",
+  "tagOther": "Otros"
 }

@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Added localized multi-select tags for Food, Consumables, Equipment, Deployables, Mystical items, Other items, and Favorites.
+- Added configurable AND/OR tag matching, defaulting to AND.
+- Added persistent right-click favorites with heart markers on item tiles.
+- Added one-click controls for clearing the search query or all selected tags.
+
 ## 1.0.1 - 2026-08-17
 
 - Added hover tooltips that show complete localized item names.

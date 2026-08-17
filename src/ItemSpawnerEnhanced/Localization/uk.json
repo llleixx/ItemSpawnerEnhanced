@@ -1,10 +1,19 @@
 {
   "title": "Створення предметів",
   "searchPlaceholder": "Пошук предметів...",
+  "clearTagsTooltip": "Очистити всі теги",
   "smartTarget": "Розумна ціль",
   "youSuffix": "(Ви)",
   "noTarget": "Немає доступної цілі",
   "notConnected": "Немає підключення до гри",
   "spawnFailed": "Не вдалося створити предмет",
-  "noItems": "Предметів не знайдено"
+  "noItems": "Предметів не знайдено",
+  "favoriteSaveFailed": "Не вдалося зберегти обране",
+  "tagFavorite": "Обране",
+  "tagFood": "Їжа",
+  "tagConsumable": "Витратні",
+  "tagEquipment": "Спорядження",
+  "tagDeployable": "Розміщувані",
+  "tagMystical": "Містичні",
+  "tagOther": "Інше"
 }

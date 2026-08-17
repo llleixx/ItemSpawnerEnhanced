@@ -1,10 +1,19 @@
 {
   "title": "아이템 생성기",
   "searchPlaceholder": "아이템 검색...",
+  "clearTagsTooltip": "모든 태그 지우기",
   "smartTarget": "스마트 대상",
   "youSuffix": "(나)",
   "noTarget": "사용 가능한 대상 없음",
   "notConnected": "게임에 연결되지 않음",
   "spawnFailed": "아이템을 생성할 수 없음",
-  "noItems": "아이템을 찾을 수 없음"
+  "noItems": "아이템을 찾을 수 없음",
+  "favoriteSaveFailed": "즐겨찾기를 저장할 수 없음",
+  "tagFavorite": "즐겨찾기",
+  "tagFood": "음식",
+  "tagConsumable": "소모품",
+  "tagEquipment": "장비",
+  "tagDeployable": "설치물",
+  "tagMystical": "신비",
+  "tagOther": "기타"
 }

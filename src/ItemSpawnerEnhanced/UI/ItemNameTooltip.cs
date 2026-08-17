@@ -125,6 +125,8 @@ internal sealed class ItemNameTooltipTrigger : MonoBehaviour, IPointerEnterHandl
         _text = text;
     }
 
+    public void SetText(string text) => _text = text;
+
     public void OnPointerEnter(PointerEventData eventData) => _tooltip.Begin(this, _text, eventData.position);
 
     public void OnPointerMove(PointerEventData eventData) => _tooltip.Move(this, eventData.position);

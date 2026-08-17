@@ -32,7 +32,10 @@ internal sealed class GameItemCatalog
         Items = sourceItems.Select(item =>
         {
             string rawName = item.UIData?.itemName ?? item.name;
-            return new GameItemRecord(item, SafeLocalizedName(item, rawName));
+            return new GameItemRecord(
+                item,
+                SafeLocalizedName(item, rawName),
+                ItemCategoryResolver.Resolve(item, rawName));
         }).ToArray();
         _sourceItems = sourceItems;
         _index = new SearchIndex<GameItemRecord>(Array.Empty<(GameItemRecord, IEnumerable<SearchAliasValue>)>());
@@ -133,12 +136,14 @@ internal sealed class GameItemCatalog
 
 internal sealed class GameItemRecord
 {
-    public GameItemRecord(Item item, string displayName)
+    public GameItemRecord(Item item, string displayName, ItemFilterTag tags)
     {
         Item = item;
         DisplayName = displayName;
+        Tags = tags;
     }
 
     public Item Item { get; }
     public string DisplayName { get; }
+    public ItemFilterTag Tags { get; }
 }
