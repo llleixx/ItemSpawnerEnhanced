@@ -17,6 +17,7 @@ internal sealed class ItemSpawnerView
     private readonly TextMeshProUGUI _status;
     private readonly RectTransform _itemContent;
     private readonly Button _close;
+    private readonly ItemNameTooltip _tooltip;
     private readonly List<ItemTile> _tiles = new();
     private bool? _spawnEnabled;
 
@@ -28,7 +29,8 @@ internal sealed class ItemSpawnerView
         TMP_Dropdown targetDropdown,
         TextMeshProUGUI status,
         RectTransform itemContent,
-        Button close)
+        Button close,
+        ItemNameTooltip tooltip)
     {
         Root = root;
         _font = font;
@@ -38,6 +40,7 @@ internal sealed class ItemSpawnerView
         _status = status;
         _itemContent = itemContent;
         _close = close;
+        _tooltip = tooltip;
     }
 
     public GameObject Root { get; }
@@ -75,7 +78,8 @@ internal sealed class ItemSpawnerView
             references.TargetDropdown,
             references.Status,
             references.ItemContent,
-            references.Close);
+            references.Close,
+            references.Tooltip);
     }
 
     public void Bind(UnityAction close, UnityAction<string> searchChanged, UnityAction<int> targetChanged)
@@ -98,6 +102,7 @@ internal sealed class ItemSpawnerView
 
     public void ClearItems()
     {
+        _tooltip.Hide();
         foreach (ItemTile tile in _tiles)
         {
             tile.GameObject.SetActive(false);
@@ -109,13 +114,14 @@ internal sealed class ItemSpawnerView
 
     public void AddItem(GameItemRecord record, UnityAction spawn)
     {
-        ItemTile tile = RuntimeUiFactory.CreateItemTile(_itemContent, _font, record, spawn);
+        ItemTile tile = RuntimeUiFactory.CreateItemTile(_itemContent, _font, record, spawn, _tooltip);
         tile.Button.interactable = false;
         _tiles.Add(tile);
     }
 
     public void ShowSearchResults(IReadOnlyList<GameItemRecord> results)
     {
+        _tooltip.Hide();
         foreach (ItemTile tile in _tiles)
             tile.GameObject.SetActive(false);
 
@@ -226,7 +232,8 @@ internal sealed class ItemSpawnerView
         scrollRect.offsetMin = new Vector2(24, 24);
         scrollRect.offsetMax = new Vector2(-24, -166);
 
-        references = new ViewReferences(title, search, dropdown, status, content, close);
+        ItemNameTooltip tooltip = RuntimeUiFactory.CreateItemTooltip(panel, font);
+        references = new ViewReferences(title, search, dropdown, status, content, close, tooltip);
     }
 
     private readonly struct ViewReferences
@@ -237,7 +244,8 @@ internal sealed class ItemSpawnerView
             TMP_Dropdown targetDropdown,
             TextMeshProUGUI status,
             RectTransform itemContent,
-            Button close)
+            Button close,
+            ItemNameTooltip tooltip)
         {
             Title = title;
             Search = search;
@@ -245,6 +253,7 @@ internal sealed class ItemSpawnerView
             Status = status;
             ItemContent = itemContent;
             Close = close;
+            Tooltip = tooltip;
         }
 
         public TextMeshProUGUI Title { get; }
@@ -253,5 +262,6 @@ internal sealed class ItemSpawnerView
         public TextMeshProUGUI Status { get; }
         public RectTransform ItemContent { get; }
         public Button Close { get; }
+        public ItemNameTooltip Tooltip { get; }
     }
 }

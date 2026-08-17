@@ -1,6 +1,6 @@
 {
   "name": "ItemSpawnerEnhanced",
-  "version_number": "1.0.0",
+  "version_number": "1.0.1",
   "website_url": "https://github.com/llleixx/ItemSpawnerEnhanced",
   "description": "A client-side item spawner for PEAK built for players across every supported game language, with localized smart search, spectator-aware targeting, and support for spawning items for any connected Scout.",
   "dependencies": [

@@ -216,7 +216,32 @@ internal static class RuntimeUiFactory
         return (scroll, content);
     }
 
-    public static ItemTile CreateItemTile(Transform parent, TMP_FontAsset font, GameItemRecord record, UnityAction onClick)
+    public static ItemNameTooltip CreateItemTooltip(RectTransform parent, TMP_FontAsset font)
+    {
+        RectTransform visual = CreateRect("ItemTooltip", parent, typeof(Image));
+        visual.anchorMin = new Vector2(0.5f, 0.5f);
+        visual.anchorMax = new Vector2(0.5f, 0.5f);
+        visual.pivot = new Vector2(0, 1);
+        Image background = visual.GetComponent<Image>();
+        background.color = new Color(0.27f, 0.29f, 0.30f, 0.98f);
+        background.raycastTarget = false;
+
+        TextMeshProUGUI label = CreateText(
+            "Label", visual, font, 20, TextPrimary, TextAlignmentOptions.MidlineLeft);
+        label.overflowMode = TextOverflowModes.Overflow;
+        Stretch(label.rectTransform, 12, 12, 8, 8);
+
+        ItemNameTooltip tooltip = parent.gameObject.AddComponent<ItemNameTooltip>();
+        tooltip.Configure(parent, visual, label);
+        return tooltip;
+    }
+
+    public static ItemTile CreateItemTile(
+        Transform parent,
+        TMP_FontAsset font,
+        GameItemRecord record,
+        UnityAction onClick,
+        ItemNameTooltip tooltip)
     {
         RectTransform root = CreateRect(record.Item.name, parent, typeof(Image), typeof(Button));
         Image background = root.GetComponent<Image>();
@@ -244,6 +269,7 @@ internal static class RuntimeUiFactory
         label.rectTransform.pivot = new Vector2(0.5f, 0);
         label.rectTransform.anchoredPosition = new Vector2(0, 6);
         label.rectTransform.sizeDelta = new Vector2(-14, 38);
+        root.gameObject.AddComponent<ItemNameTooltipTrigger>().Configure(tooltip, record.DisplayName);
         return new ItemTile(record, root.gameObject, button);
     }
 

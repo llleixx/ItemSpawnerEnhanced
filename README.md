@@ -2,9 +2,17 @@
 
 A client-side item spawner for PEAK built for players across **every supported game language**, with **localized smart search**, **spectator-aware targeting**, and support for spawning items for **any connected Scout**.
 
-| English search | 简体中文拼音搜索 | 日本語検索 |
-| :---: | :---: | :---: |
-| ![English item search](https://raw.githubusercontent.com/llleixx/ItemSpawnerEnhanced/main/docs/media/english.jpg) | ![简体中文拼音搜索](https://raw.githubusercontent.com/llleixx/ItemSpawnerEnhanced/main/docs/media/chinese.jpg) | ![日本語のアイテム検索](https://raw.githubusercontent.com/llleixx/ItemSpawnerEnhanced/main/docs/media/japanese.jpg) |
+| English (`pack`) | 简体中文拼音首字母 (`bb`) |
+| :---: | :---: |
+| ![English pack search](https://raw.githubusercontent.com/llleixx/ItemSpawnerEnhanced/main/docs/media/search-en-pack.webp) | ![Simplified Chinese pinyin initials search](https://raw.githubusercontent.com/llleixx/ItemSpawnerEnhanced/main/docs/media/search-zh-hans-pinyin-initials.webp) |
+
+| 日本語 (`パック`) | Русский (`ранец`) |
+| :---: | :---: |
+| ![Japanese pack search](https://raw.githubusercontent.com/llleixx/ItemSpawnerEnhanced/main/docs/media/search-ja-pakku.webp) | ![Russian ranets search with a full-name tooltip](https://raw.githubusercontent.com/llleixx/ItemSpawnerEnhanced/main/docs/media/search-ru-ranets.webp) |
+
+| Português (BR) (`mochila`) | Español (España) (`mochila`) |
+| :---: | :---: |
+| ![Brazilian Portuguese mochila search with a full-name tooltip](https://raw.githubusercontent.com/llleixx/ItemSpawnerEnhanced/main/docs/media/search-pt-br-mochila.webp) | ![Spanish Spain mochila search](https://raw.githubusercontent.com/llleixx/ItemSpawnerEnhanced/main/docs/media/search-es-es-mochila.webp) |
 
 ## Features
 
@@ -46,7 +54,9 @@ The comparison below uses [**quackandcheese-ItemSpawner 0.1.4**](https://thunder
 | **Language search extensions** | Public alias-provider API; providers can be contributed here or released as separate mods | No dedicated language-alias provider API |
 | **Items added by other mods** | Supported | Supported |
 
-Language mod authors are welcome to add transliteration or language-specific aliases. A provider can be submitted to the [ItemSpawnerEnhanced repository](https://github.com/llleixx/ItemSpawnerEnhanced) or distributed as a standalone companion mod. See the [language search extension guide](https://github.com/llleixx/ItemSpawnerEnhanced/blob/main/docs/LANGUAGE_SEARCH_EXTENSIONS.md) for both workflows and a TinyPinyin-based example.
+## Language Search Extensions
+
+Language mod authors are welcome to add transliterations and other language-specific search aliases. A provider can be submitted to the [ItemSpawnerEnhanced repository](https://github.com/llleixx/ItemSpawnerEnhanced) or distributed as a standalone companion mod. See the [language search extension guide](https://github.com/llleixx/ItemSpawnerEnhanced/blob/main/docs/LANGUAGE_SEARCH_EXTENSIONS.md) for both workflows and a TinyPinyin-based example.
 
 ## Installation
 

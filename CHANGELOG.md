@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1 - 2026-08-17
+
+- Added hover tooltips that show complete localized item names.
+- Expanded the README gallery with optimized WebP screenshots for six languages.
+- Clarified manual installation and language search extension documentation.
+
 ## 1.0.0 - 2026-08-16
 
 - Runtime-built item spawner UI with a larger centered search field.
