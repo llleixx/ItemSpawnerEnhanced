@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.0 - 2026-08-18
 
 - Added continuous item spawning while the left mouse button is held on an item tile.
 - Added a default-on `SingleTagSelection` option that replaces the selected tag when another tag is chosen.
