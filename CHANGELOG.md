@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.1 - 2026-08-19
 
 - Kept favorited default-hidden prefabs visible when `ShowAllItems` is disabled.
 
