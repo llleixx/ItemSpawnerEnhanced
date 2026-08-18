@@ -59,7 +59,7 @@ internal sealed class GameItemCatalog
                 items.Add(new GameItemRecord(
                     item,
                     SafeLocalizedName(item, rawName),
-                    ItemCategoryResolver.Resolve(item, rawName)));
+                    ItemCategoryResolver.Resolve(item)));
             }
 
             if (index + 1 < sourceItems.Length && ElapsedMilliseconds(sliceStarted) >= timeBudgetMilliseconds)

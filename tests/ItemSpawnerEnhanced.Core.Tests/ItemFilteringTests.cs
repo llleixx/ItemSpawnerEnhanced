@@ -6,6 +6,53 @@ namespace ItemSpawnerEnhanced.Core.Tests;
 public sealed class ItemFilteringTests
 {
     [Test]
+    public void SingleTagSelection_ReplacesCurrentSelection()
+    {
+        ItemFilterTag selected = ItemFilterTag.Food | ItemFilterTag.Mystical;
+
+        ItemFilterTag result = ItemTagSelection.Update(
+            selected,
+            ItemFilterTag.Equipment,
+            selected: true,
+            singleTagSelection: true);
+
+        Assert.That(result, Is.EqualTo(ItemFilterTag.Equipment));
+    }
+
+    [Test]
+    public void MultiTagSelection_AddsToCurrentSelection()
+    {
+        ItemFilterTag result = ItemTagSelection.Update(
+            ItemFilterTag.Food,
+            ItemFilterTag.Mystical,
+            selected: true,
+            singleTagSelection: false);
+
+        Assert.That(result, Is.EqualTo(ItemFilterTag.Food | ItemFilterTag.Mystical));
+    }
+
+    [Test]
+    public void Deselect_RemovesTagInEitherSelectionMode()
+    {
+        ItemFilterTag result = ItemTagSelection.Update(
+            ItemFilterTag.Food | ItemFilterTag.Mystical,
+            ItemFilterTag.Food,
+            selected: false,
+            singleTagSelection: true);
+
+        Assert.That(result, Is.EqualTo(ItemFilterTag.Mystical));
+    }
+
+    [Test]
+    public void NormalizeSingle_KeepsOneSelectedTag()
+    {
+        ItemFilterTag result = ItemTagSelection.NormalizeSingle(
+            ItemFilterTag.Food | ItemFilterTag.Equipment | ItemFilterTag.Mystical);
+
+        Assert.That(result, Is.EqualTo(ItemFilterTag.Food));
+    }
+
+    [Test]
     public void NoSelectedTags_MatchesEveryItem()
     {
         Assert.That(ItemFilterMatcher.Matches(
@@ -105,25 +152,28 @@ public sealed class ItemFilteringTests
         Assert.That(tags, Is.EqualTo(ItemFilterTag.Deployable | ItemFilterTag.Mystical));
     }
 
-    [TestCase("Bugle of Friendship", "BugleFriendship", (int)ItemFilterTag.Consumable)]
-    [TestCase("Scoutmaster's Bugle", "ScoutmasterBugle", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
-    [TestCase("Candlestick", "Candlestick", (int)ItemFilterTag.Consumable)]
-    [TestCase("Lantern", "Lantern", (int)ItemFilterTag.Consumable)]
-    [TestCase("Faerie Lantern", "Lantern_Faerie", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
-    [TestCase("Rescue Claw", "RescueHook", (int)ItemFilterTag.Consumable)]
-    [TestCase("Rescue Claw", "RescueHook_Infinite", (int)ItemFilterTag.Consumable)]
-    [TestCase("Torch", "Torch", (int)ItemFilterTag.Consumable)]
-    [TestCase("Warp Compass", "Warp Compass", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
-    [TestCase("Ancient Idol", "Ancient Idol", (int)(ItemFilterTag.Equipment | ItemFilterTag.Mystical))]
-    [TestCase("The Book of Bones", "BookOfBones", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
-    [TestCase("Ritual Dagger", "RitualDagger", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
-    [TestCase("Anti-Zooka", "Anti-Zooka", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
-    public void ReviewedItems_HaveExpectedTags(
-        string displayName,
-        string prefabName,
-        int expectedTagValue)
+    [TestCase("Bugle_Magic", (int)ItemFilterTag.Consumable)]
+    [TestCase("Bugle_Scoutmaster Variant", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
+    [TestCase("Candle", (int)ItemFilterTag.Consumable)]
+    [TestCase("Lantern", (int)ItemFilterTag.Consumable)]
+    [TestCase("Lantern_Faerie", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
+    [TestCase("RescueHook", (int)ItemFilterTag.Consumable)]
+    [TestCase("RescueHook_Infinite", (int)ItemFilterTag.Consumable)]
+    [TestCase("Torch", (int)ItemFilterTag.Consumable)]
+    [TestCase("Warp Compass", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
+    [TestCase("AncientIdol", (int)(ItemFilterTag.Equipment | ItemFilterTag.Mystical))]
+    [TestCase("BookOfBones", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
+    [TestCase("RitualDagger", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
+    [TestCase("AntiZooka", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
+    public void ReviewedPrefabs_HaveExpectedTags(string prefabName, int expectedTagValue)
     {
         var expected = (ItemFilterTag)expectedTagValue;
-        Assert.That(VanillaItemCategories.Resolve(displayName, prefabName), Is.EqualTo(expected));
+        Assert.That(VanillaItemCategories.Resolve(prefabName), Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void ReviewedPrefabMatching_IsExact()
+    {
+        Assert.That(VanillaItemCategories.Resolve("bookofbones"), Is.EqualTo(ItemFilterTag.None));
     }
 }

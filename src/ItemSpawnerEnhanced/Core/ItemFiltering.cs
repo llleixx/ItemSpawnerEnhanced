@@ -21,6 +21,27 @@ internal enum TagMatchMode
     Or
 }
 
+internal static class ItemTagSelection
+{
+    public static ItemFilterTag Update(
+        ItemFilterTag selectedTags,
+        ItemFilterTag changedTag,
+        bool selected,
+        bool singleTagSelection)
+    {
+        if (!selected)
+            return selectedTags & ~changedTag;
+
+        return singleTagSelection ? changedTag : selectedTags | changedTag;
+    }
+
+    public static ItemFilterTag NormalizeSingle(ItemFilterTag selectedTags)
+    {
+        int value = (int)selectedTags;
+        return value == 0 ? ItemFilterTag.None : (ItemFilterTag)(value & -value);
+    }
+}
+
 internal static class ItemFilterMatcher
 {
     public static bool Matches(

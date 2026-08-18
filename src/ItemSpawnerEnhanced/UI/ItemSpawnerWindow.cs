@@ -80,7 +80,10 @@ internal sealed class ItemSpawnerWindow : MenuWindow
         StopRebuild();
         LocalizedText.OnLangugageChanged -= OnLanguageChanged;
         if (_settings != null)
+        {
+            _settings.SingleTagSelectionEntry.SettingChanged -= OnSingleTagSelectionChanged;
             _settings.TagMatchModeEntry.SettingChanged -= OnTagMatchModeChanged;
+        }
     }
 
     protected override void Start()
@@ -182,6 +185,7 @@ internal sealed class ItemSpawnerWindow : MenuWindow
         _browser.InitializeView();
         ApplyLocalizedChrome();
         LocalizedText.OnLangugageChanged += OnLanguageChanged;
+        _settings.SingleTagSelectionEntry.SettingChanged += OnSingleTagSelectionChanged;
         _settings.TagMatchModeEntry.SettingChanged += OnTagMatchModeChanged;
     }
 
@@ -244,6 +248,9 @@ internal sealed class ItemSpawnerWindow : MenuWindow
         if (isOpen)
             _browser.ApplySearch(_view.SearchText);
     }
+
+    private void OnSingleTagSelectionChanged(object? sender, EventArgs eventArgs) =>
+        _browser.ApplyTagSelectionMode();
 
     private void OnLanguageChanged()
     {

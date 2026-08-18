@@ -5,9 +5,9 @@ namespace ItemSpawnerEnhanced;
 
 internal static class ItemCategoryResolver
 {
-    public static ItemFilterTag Resolve(Item item, string rawName)
+    public static ItemFilterTag Resolve(Item item)
     {
-        ItemFilterTag tags = VanillaItemCategories.Resolve(rawName, item.name);
+        ItemFilterTag tags = VanillaItemCategories.Resolve(item.name);
 
         if (item.itemTags.HasFlag(Item.ItemTags.Mystical))
             tags |= ItemFilterTag.Mystical;

@@ -57,7 +57,12 @@ internal sealed class ItemBrowserController
 
     public bool IsCatalogCurrent() => _catalog.IsCurrent();
 
-    public void InitializeView() => _view.SetSelectedTags(_session.SelectedTags);
+    public void InitializeView()
+    {
+        if (_settings.SingleTagSelection)
+            _session.SelectedTags = ItemTagSelection.NormalizeSingle(_session.SelectedTags);
+        _view.SetSelectedTags(_session.SelectedTags);
+    }
 
     public void RequestRefresh(RefreshRequirement requirement) => _refresh.Request(requirement);
 
@@ -116,10 +121,26 @@ internal sealed class ItemBrowserController
 
     public void SetTag(ItemFilterTag tag, bool selected)
     {
-        if (selected)
-            _session.SelectedTags |= tag;
-        else
-            _session.SelectedTags &= ~tag;
+        _session.SelectedTags = ItemTagSelection.Update(
+            _session.SelectedTags,
+            tag,
+            selected,
+            _settings.SingleTagSelection);
+        _view.SetSelectedTags(_session.SelectedTags);
+        ApplySearch(_view.SearchText);
+    }
+
+    public void ApplyTagSelectionMode()
+    {
+        if (!_settings.SingleTagSelection)
+            return;
+
+        ItemFilterTag selectedTag = ItemTagSelection.NormalizeSingle(_session.SelectedTags);
+        if (selectedTag == _session.SelectedTags)
+            return;
+
+        _session.SelectedTags = selectedTag;
+        _view.SetSelectedTags(selectedTag);
         ApplySearch(_view.SearchText);
     }
 

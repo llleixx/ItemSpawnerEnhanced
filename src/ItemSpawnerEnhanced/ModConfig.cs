@@ -8,6 +8,7 @@ internal sealed class ModConfig
 {
     private readonly ConfigEntry<Key> _toggleKey;
     private readonly ConfigEntry<bool> _showAllItems;
+    private readonly ConfigEntry<bool> _singleTagSelection;
     private readonly ConfigEntry<TagMatchMode> _tagMatchMode;
     private readonly ConfigEntry<string> _favoriteItemNames;
 
@@ -25,6 +26,12 @@ internal sealed class ModConfig
             false,
             "Show every item prefab registered by PEAK, including unused, test, cheat, and internal duplicate items.");
 
+        _singleTagSelection = config.Bind(
+            "Filtering",
+            "SingleTagSelection",
+            true,
+            "Allow only one selected filter tag at a time. Selecting another tag clears the current selection.");
+
         _tagMatchMode = config.Bind(
             "Filtering",
             "TagMatchMode",
@@ -40,7 +47,9 @@ internal sealed class ModConfig
 
     public Key ToggleKey => _toggleKey.Value;
     public bool ShowAllItems => _showAllItems.Value;
+    public bool SingleTagSelection => _singleTagSelection.Value;
     public TagMatchMode TagMatchMode => _tagMatchMode.Value;
+    public ConfigEntry<bool> SingleTagSelectionEntry => _singleTagSelection;
     public ConfigEntry<TagMatchMode> TagMatchModeEntry => _tagMatchMode;
     public ConfigEntry<string> FavoriteItemNamesEntry => _favoriteItemNames;
 }

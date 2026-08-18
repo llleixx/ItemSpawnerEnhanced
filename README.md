@@ -26,7 +26,7 @@ A client-side item spawner for PEAK built for players across **every supported g
 - **Smart targeting:** Spawn for yourself while alive or automatically target the Scout you are spectating after death.
 - **Any Scout:** Select any available Scout in the room from the target dropdown.
 - **Modded item support:** Discover items registered in PEAK's item database, including items added by other mods.
-- **Tag filtering:** Combine Food, Consumables, Equipment, Deployables, Mystical, and Other tags using configurable AND or OR matching.
+- **Tag filtering:** Filter by Food, Consumables, Equipment, Deployables, Mystical, Other, or Favorites. Tags are single-select by default, with optional multi-select AND/OR matching.
 - **Curated catalog:** Hide known unused and internal duplicate prefabs by default, with an option to reveal every registered item.
 - **Persistent favorites:** Right-click an item to favorite it, mark its tile with a heart, and filter favorites like any other tag.
 - **Fully localized UI:** Use interface text for every language currently supported by PEAK.
@@ -79,7 +79,7 @@ After installation, both plugin files should be at:
 <PEAK>/BepInEx/plugins/ItemSpawnerEnhanced/ItemSpawnerEnhanced.ChineseSearch.dll
 ```
 
-The toggle key, tag matching mode, and catalog visibility can be changed in **`BepInEx/config/com.github.lllei.ItemSpawnerEnhanced.cfg`**. Tag matching defaults to `And`; set `TagMatchMode = Or` to show items matching any selected tag. Set `ShowAllItems = true` to include unused, test, cheat, and internal duplicate prefabs. Favorite item names are saved automatically in the same file.
+The toggle key, tag selection behavior, tag matching mode, and catalog visibility can be changed in **`BepInEx/config/com.github.lllei.ItemSpawnerEnhanced.cfg`**. Only one tag can be selected at a time by default; set `SingleTagSelection = false` to enable multi-select, then use `TagMatchMode = And` or `Or` to control how selected tags are combined. Set `ShowAllItems = true` to include unused, test, cheat, and internal duplicate prefabs. Favorite item names are saved automatically in the same file.
 
 See the [item tag and catalog visibility reference](https://github.com/llleixx/ItemSpawnerEnhanced/blob/main/docs/ITEM_TAGS.md) for classification rules and the complete default-hidden list.
 

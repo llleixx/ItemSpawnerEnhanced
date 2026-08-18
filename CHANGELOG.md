@@ -3,6 +3,9 @@
 ## Unreleased
 
 - Added continuous item spawning while the left mouse button is held on an item tile.
+- Added a default-on `SingleTagSelection` option that replaces the selected tag when another tag is chosen.
+- Preloaded the item catalog, search index, and browser UI in the background to reduce the delay when opening the item spawner for the first time.
+- Made reviewed vanilla tag mappings use exact prefab names, fixing missing Consumable tags for Anti-Zooka, The Book of Bones, and Ritual Dagger.
 
 ## 1.1.0 - 2026-08-17
 
