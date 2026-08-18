@@ -45,7 +45,7 @@ internal sealed class ItemBrowserController
         _view = view;
         _targetController = targetController;
         _localize = localize;
-        _catalog = new GameItemCatalog(logger, () => settings.ShowAllItems);
+        _catalog = new GameItemCatalog(logger, () => settings.ShowAllItems, favorites.IsFavorite);
     }
 
     public bool IsRebuilding => _refresh.IsRebuilding;
@@ -270,6 +270,13 @@ internal sealed class ItemBrowserController
         }
 
         _view.SetFavorite(record, isFavorite);
+        if (!isFavorite && !_settings.ShowAllItems &&
+            VanillaItemVisibility.IsDefaultHidden(record.Item.name))
+        {
+            RequestRefresh(RefreshRequirement.Catalog);
+            return;
+        }
+
         ApplySearch(_view.SearchText);
     }
 

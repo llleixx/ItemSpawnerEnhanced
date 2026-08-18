@@ -29,7 +29,10 @@ public sealed class VanillaItemVisibilityTests
     [TestCase("Warpsketball")]
     public void NonGameplayPrefab_IsHidden(string internalName)
     {
-        Assert.That(VanillaItemVisibility.IsVisible(internalName, showAllItems: false), Is.False);
+        Assert.That(VanillaItemVisibility.IsVisible(
+            internalName,
+            showAllItems: false,
+            isFavorite: false), Is.False);
     }
 
     [TestCase("Kingberry Green")]
@@ -47,7 +50,10 @@ public sealed class VanillaItemVisibilityTests
     [TestCase("Warp Compass")]
     public void PlayableOrIntentionalVariant_IsVisible(string internalName)
     {
-        Assert.That(VanillaItemVisibility.IsVisible(internalName, showAllItems: false), Is.True);
+        Assert.That(VanillaItemVisibility.IsVisible(
+            internalName,
+            showAllItems: false,
+            isFavorite: false), Is.True);
     }
 
     [TestCase("Clusterberry_UNUSED")]
@@ -55,7 +61,21 @@ public sealed class VanillaItemVisibilityTests
     [TestCase("C_King")]
     public void ShowAllItems_RevealsDefaultHiddenPrefab(string internalName)
     {
-        Assert.That(VanillaItemVisibility.IsVisible(internalName, showAllItems: true), Is.True);
+        Assert.That(VanillaItemVisibility.IsVisible(
+            internalName,
+            showAllItems: true,
+            isFavorite: false), Is.True);
+    }
+
+    [TestCase("Clusterberry_UNUSED")]
+    [TestCase("Parasol_Roots Variant")]
+    [TestCase("C_King")]
+    public void Favorite_RevealsDefaultHiddenPrefab(string internalName)
+    {
+        Assert.That(VanillaItemVisibility.IsVisible(
+            internalName,
+            showAllItems: false,
+            isFavorite: true), Is.True);
     }
 
     [Test]

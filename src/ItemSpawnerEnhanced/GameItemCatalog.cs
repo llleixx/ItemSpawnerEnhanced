@@ -15,14 +15,16 @@ internal sealed class GameItemCatalog
 {
     private readonly ManualLogSource _logger;
     private readonly Func<bool> _showAllItems;
+    private readonly Func<string, bool> _isFavorite;
     private SearchIndex<GameItemRecord> _index = new(Array.Empty<(GameItemRecord, IEnumerable<SearchAliasValue>)>());
     private Item[] _sourceItems = Array.Empty<Item>();
     private bool _sourceShowAllItems;
 
-    public GameItemCatalog(ManualLogSource logger, Func<bool> showAllItems)
+    public GameItemCatalog(ManualLogSource logger, Func<bool> showAllItems, Func<string, bool> isFavorite)
     {
         _logger = logger;
         _showAllItems = showAllItems;
+        _isFavorite = isFavorite;
     }
 
     public IReadOnlyList<GameItemRecord> Items { get; private set; } = Array.Empty<GameItemRecord>();
@@ -53,7 +55,7 @@ internal sealed class GameItemCatalog
         for (int index = 0; index < sourceItems.Length; index++)
         {
             Item item = sourceItems[index];
-            if (VanillaItemVisibility.IsVisible(item.name, showAllItems))
+            if (VanillaItemVisibility.IsVisible(item.name, showAllItems, _isFavorite(item.name)))
             {
                 string rawName = item.UIData?.itemName ?? item.name;
                 items.Add(new GameItemRecord(

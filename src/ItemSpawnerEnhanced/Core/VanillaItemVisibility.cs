@@ -52,6 +52,8 @@ internal static class VanillaItemVisibility
 
     public static IReadOnlyCollection<string> DefaultHiddenInternalNames => HiddenInternalNames;
 
-    public static bool IsVisible(string internalName, bool showAllItems) =>
-        showAllItems || !HiddenInternalNames.Contains(internalName);
+    public static bool IsVisible(string internalName, bool showAllItems, bool isFavorite) =>
+        showAllItems || isFavorite || !IsDefaultHidden(internalName);
+
+    public static bool IsDefaultHidden(string internalName) => HiddenInternalNames.Contains(internalName);
 }
