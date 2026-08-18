@@ -1,12 +1,12 @@
 using BepInEx.Configuration;
 using ItemSpawnerEnhanced.Core;
-using UnityEngine.InputSystem;
+using UnityEngine;
 
 namespace ItemSpawnerEnhanced;
 
 internal sealed class ModConfig
 {
-    private readonly ConfigEntry<Key> _toggleKey;
+    private readonly ConfigEntry<KeyCode> _toggleKey;
     private readonly ConfigEntry<bool> _showAllItems;
     private readonly ConfigEntry<bool> _singleTagSelection;
     private readonly ConfigEntry<TagMatchMode> _tagMatchMode;
@@ -17,7 +17,7 @@ internal sealed class ModConfig
         _toggleKey = config.Bind(
             "General",
             "ToggleKey",
-            Key.F5,
+            KeyCode.F5,
             "The keyboard key used to open and close the item spawner.");
 
         _showAllItems = config.Bind(
@@ -45,7 +45,7 @@ internal sealed class ModConfig
             "Favorite item prefab names stored as a JSON array. Manage these in the item spawner UI.");
     }
 
-    public Key ToggleKey => _toggleKey.Value;
+    public KeyCode ToggleKey => _toggleKey.Value;
     public bool ShowAllItems => _showAllItems.Value;
     public bool SingleTagSelection => _singleTagSelection.Value;
     public TagMatchMode TagMatchMode => _tagMatchMode.Value;

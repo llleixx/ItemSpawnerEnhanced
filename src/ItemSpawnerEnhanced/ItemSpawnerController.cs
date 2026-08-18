@@ -2,7 +2,6 @@ using System;
 using BepInEx.Logging;
 using ItemSpawnerEnhanced.UI;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace ItemSpawnerEnhanced;
 
@@ -12,7 +11,6 @@ internal sealed class ItemSpawnerController : IDisposable
     private readonly ModConfig _settings;
     private readonly FavoriteStore _favorites;
     private readonly ItemBrowserSession _browserSession = new();
-    private readonly Key _toggleKey;
     private ItemSpawnerWindow? _window;
 
     public ItemSpawnerController(ModConfig settings, ManualLogSource logger)
@@ -20,7 +18,6 @@ internal sealed class ItemSpawnerController : IDisposable
         _logger = logger;
         _settings = settings;
         _favorites = new FavoriteStore(settings.FavoriteItemNamesEntry, logger);
-        _toggleKey = settings.ToggleKey;
     }
 
     public void Attach()
@@ -40,8 +37,8 @@ internal sealed class ItemSpawnerController : IDisposable
 
     public void Tick()
     {
-        Keyboard? keyboard = Keyboard.current;
-        if (_window != null && keyboard != null && _toggleKey != Key.None && keyboard[_toggleKey].wasPressedThisFrame)
+        KeyCode toggleKey = _settings.ToggleKey;
+        if (_window != null && toggleKey != KeyCode.None && Input.GetKeyDown(toggleKey))
             _window.ToggleWindow();
     }
 
