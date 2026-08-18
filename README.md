@@ -1,5 +1,8 @@
 # ItemSpawnerEnhanced
 
+[![GitHub Repo](https://img.shields.io/badge/GitHub-llleixx%2FItemSpawnerEnhanced-black?logo=github)](https://github.com/llleixx/ItemSpawnerEnhanced)
+[![Thunderstore Downloads](https://img.shields.io/thunderstore/dt/lllei/ItemSpawnerEnhanced?logo=thunderstore&label=Downloads)](https://thunderstore.io/c/peak/p/lllei/ItemSpawnerEnhanced/)
+
 A client-side item spawner for PEAK built for players across **every supported game language**, with **localized smart search**, **spectator-aware targeting**, and support for spawning items for **any connected Scout**.
 
 | Favorites | Combined tag filtering |
