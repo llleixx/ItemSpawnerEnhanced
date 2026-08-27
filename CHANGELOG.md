@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.3.0 - 2026-08-28
 
 - Added configurable controller opening with `View/Share + RT/R2` by default.
 - Added full controller navigation for targets, tag filters, clearing filters, and the item grid, including focus restoration and automatic scrolling.
