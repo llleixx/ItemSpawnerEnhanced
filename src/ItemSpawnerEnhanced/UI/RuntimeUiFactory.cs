@@ -1,4 +1,5 @@
 using System;
+using ItemSpawnerEnhanced.Core;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,6 +17,13 @@ internal static class RuntimeUiFactory
     internal static readonly Color TextMuted = new(0.68f, 0.71f, 0.69f, 1f);
     internal static readonly Color Error = new(0.94f, 0.52f, 0.42f, 1f);
     internal static readonly Color Favorite = new(0.95f, 0.38f, 0.52f, 1f);
+    internal static readonly Color FocusRing = new(1f, 0.78f, 0.25f, 1f);
+    internal static readonly Color SurfacePressed = Color.Lerp(SurfaceHover, Accent, 0.25f);
+    internal static readonly Color DisabledSurface = new(
+        Surface.r * 0.72f,
+        Surface.g * 0.72f,
+        Surface.b * 0.72f,
+        1f);
 
     public static RectTransform CreateRect(string name, Transform parent, params Type[] components)
     {
@@ -40,6 +48,46 @@ internal static class RuntimeUiFactory
         image.sprite = RuntimeUiAssets.RoundedRectSprite;
         image.type = Image.Type.Sliced;
     }
+
+    public static Image CreateFocusFrame(
+        Transform parent,
+        float outerInset = -5f,
+        float separatorInset = 4f)
+    {
+        RectTransform rect = CreateRect("ControllerFocus", parent, typeof(Image));
+        Stretch(rect, outerInset, outerInset, outerInset, outerInset);
+        Image frame = rect.GetComponent<Image>();
+        frame.sprite = RuntimeUiAssets.RoundedOutlineSprite;
+        frame.type = Image.Type.Sliced;
+        frame.color = FocusRing;
+        frame.raycastTarget = false;
+
+        RectTransform separatorRect = CreateRect("InnerContrast", rect, typeof(Image));
+        Stretch(separatorRect, separatorInset, separatorInset, separatorInset, separatorInset);
+        Image separator = separatorRect.GetComponent<Image>();
+        separator.sprite = RuntimeUiAssets.RoundedOutlineSprite;
+        separator.type = Image.Type.Sliced;
+        separator.color = Panel;
+        separator.raycastTarget = false;
+
+        frame.gameObject.SetActive(false);
+        frame.transform.SetAsLastSibling();
+        return frame;
+    }
+
+    public static Color ResolvePalette(UiPaletteToken token) => token switch
+    {
+        UiPaletteToken.Surface => Surface,
+        UiPaletteToken.SurfaceHover => SurfaceHover,
+        UiPaletteToken.SurfacePressed => SurfacePressed,
+        UiPaletteToken.Accent => Accent,
+        UiPaletteToken.AccentHover => Color.Lerp(Accent, Color.white, 0.12f),
+        UiPaletteToken.Panel => Panel,
+        UiPaletteToken.TextPrimary => TextPrimary,
+        UiPaletteToken.TextMuted => TextMuted,
+        UiPaletteToken.DisabledSurface => DisabledSurface,
+        _ => TextPrimary
+    };
 
     public static TextMeshProUGUI CreateText(
         string name,
@@ -161,7 +209,7 @@ internal static class RuntimeUiFactory
         return (button, icon);
     }
 
-    public static TMP_Dropdown CreateDropdown(Transform parent, TMP_FontAsset font)
+    public static TargetDropdownVisual CreateDropdown(Transform parent, TMP_FontAsset font)
     {
         RectTransform root = CreateRect("Target", parent, typeof(Image), typeof(TMP_Dropdown), typeof(LayoutElement));
         Image rootBackground = root.GetComponent<Image>();
@@ -224,6 +272,7 @@ internal static class RuntimeUiFactory
         Toggle toggle = item.GetComponent<Toggle>();
         toggle.targetGraphic = itemBackground.GetComponent<Image>();
         toggle.graphic = null;
+        item.gameObject.AddComponent<DropdownOptionVisual>().Configure(itemBackgroundImage, itemLabel, toggle);
 
         ScrollRect scroll = template.GetComponent<ScrollRect>();
         scroll.content = content;
@@ -240,7 +289,7 @@ internal static class RuntimeUiFactory
         dropdown.itemText = itemLabel;
         dropdown.options.Clear();
         template.gameObject.SetActive(false);
-        return dropdown;
+        return new TargetDropdownVisual(dropdown, rootBackground, caption, arrow);
     }
 
     public static (ScrollRect Scroll, RectTransform Content) CreateItemScroll(Transform parent)

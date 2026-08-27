@@ -22,19 +22,22 @@ internal sealed class ItemSpawnerWindow : MenuWindow
     private PlayerTargetController _targetController = null!;
     private ItemSpawnerView _view = null!;
     private ItemBrowserController _browser = null!;
+    private ControllerFocusCoordinator _controllerFocus = null!;
     private Coroutine? _rebuildRoutine;
     private Coroutine? _warmUpRoutine;
     private bool _shutdown;
+    private WindowInputSource _openInputSource = WindowInputSource.Keyboard;
 
     public override bool openOnStart => false;
-    public override bool selectOnOpen => true;
+    public override bool selectOnOpen => false;
     public override Selectable objectToSelectOnOpen => _view.SearchSelectable;
     public override bool closeOnPause => true;
-    public override bool closeOnUICancel => true;
+    public override bool closeOnUICancel => false;
     public override bool blocksPlayerInput => true;
     public override bool showCursorWhileOpen => true;
     public override bool autoHideOnClose => true;
     public override GameObject panel => gameObject;
+    public bool IsOpen => isOpen;
 
     public static ItemSpawnerWindow Create(
         ManualLogSource logger,
@@ -59,10 +62,12 @@ internal sealed class ItemSpawnerWindow : MenuWindow
         }
     }
 
-    public void ToggleWindow()
+    public void ToggleWindow(WindowInputSource inputSource)
     {
         try
         {
+            if (!isOpen)
+                _openInputSource = inputSource;
             (isOpen ? CloseMethod : OpenMethod).Invoke(this, null);
         }
         catch (Exception exception)
@@ -71,11 +76,16 @@ internal sealed class ItemSpawnerWindow : MenuWindow
         }
     }
 
+    public void HandleControllerInput(ItemSpawnerInputSnapshot input) =>
+        _controllerFocus.Tick(input);
+
     public void Shutdown()
     {
         if (_shutdown)
             return;
         _shutdown = true;
+        if (_controllerFocus != null)
+            _controllerFocus.Close();
         StopBackgroundWarmUp();
         StopRebuild();
         LocalizedText.OnLangugageChanged -= OnLanguageChanged;
@@ -150,12 +160,22 @@ internal sealed class ItemSpawnerWindow : MenuWindow
             _targetController.Refresh(force: true);
             _browser.ApplySearch(_view.SearchText);
         }
-        _view.ActivateSearch();
+        if (_openInputSource == WindowInputSource.Controller)
+        {
+            _view.DeactivateSearch();
+            _controllerFocus.OpenWithController();
+        }
+        else
+        {
+            _controllerFocus.OpenWithoutController();
+            _view.ActivateSearch();
+        }
     }
 
     protected override void OnClose()
     {
         StopRebuild();
+        _controllerFocus.Close();
         _view.DeactivateSearch();
         _view.SetVisible(false);
         base.OnClose();
@@ -181,7 +201,15 @@ internal sealed class ItemSpawnerWindow : MenuWindow
             view,
             _targetController,
             Localize);
-        _view.Bind(ToggleWindow, _browser.ApplySearch, OnTargetChanged, _browser.SetTag, _browser.ClearTags);
+        _view.Bind(
+            () => ToggleWindow(WindowInputSource.Keyboard),
+            _browser.ApplySearch,
+            OnTargetChanged,
+            _browser.SetTag,
+            _browser.ClearTags);
+        _controllerFocus = new ControllerFocusCoordinator(
+            _view,
+            () => ToggleWindow(WindowInputSource.Controller));
         _browser.InitializeView();
         ApplyLocalizedChrome();
         LocalizedText.OnLangugageChanged += OnLanguageChanged;
@@ -295,4 +323,10 @@ internal sealed class ItemSpawnerWindow : MenuWindow
         Shutdown();
         MenuWindow.AllActiveWindows.Remove(this);
     }
+}
+
+internal enum WindowInputSource
+{
+    Keyboard,
+    Controller
 }

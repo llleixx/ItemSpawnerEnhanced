@@ -8,11 +8,13 @@ internal static class RuntimeUiAssets
     private static Texture2D? _filterClearTexture;
     private static Texture2D? _searchClearTexture;
     private static Sprite? _roundedRectSprite;
+    private static Sprite? _roundedOutlineSprite;
 
     public static Texture2D HeartTexture => _heartTexture ??= CreateHeartTexture();
     public static Texture2D FilterClearTexture => _filterClearTexture ??= CreateFilterClearTexture();
     public static Texture2D SearchClearTexture => _searchClearTexture ??= CreateSearchClearTexture();
     public static Sprite RoundedRectSprite => _roundedRectSprite ??= CreateRoundedRectSprite();
+    public static Sprite RoundedOutlineSprite => _roundedOutlineSprite ??= CreateRoundedOutlineSprite();
 
     public static void Release()
     {
@@ -22,6 +24,14 @@ internal static class RuntimeUiAssets
             Object.Destroy(_roundedRectSprite);
             Object.Destroy(roundedRectTexture);
             _roundedRectSprite = null;
+        }
+
+        if (_roundedOutlineSprite != null)
+        {
+            Texture2D roundedOutlineTexture = _roundedOutlineSprite.texture;
+            Object.Destroy(_roundedOutlineSprite);
+            Object.Destroy(roundedOutlineTexture);
+            _roundedOutlineSprite = null;
         }
 
         DestroyTexture(ref _heartTexture);
@@ -125,6 +135,72 @@ internal static class RuntimeUiAssets
         sprite.name = "ItemSpawnerEnhanced Rounded Rectangle";
         sprite.hideFlags = HideFlags.HideAndDontSave;
         return sprite;
+    }
+
+    private static Sprite CreateRoundedOutlineSprite()
+    {
+        const int size = 40;
+        const float radius = 10f;
+        const float stroke = 3.5f;
+        const int samplesPerAxis = 4;
+        var texture = new Texture2D(size, size, TextureFormat.RGBA32, mipChain: false)
+        {
+            name = "ItemSpawnerEnhanced Focus Outline",
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp,
+            hideFlags = HideFlags.HideAndDontSave
+        };
+        var pixels = new Color32[size * size];
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                int insideSamples = 0;
+                for (int sampleY = 0; sampleY < samplesPerAxis; sampleY++)
+                {
+                    for (int sampleX = 0; sampleX < samplesPerAxis; sampleX++)
+                    {
+                        Vector2 point = new(
+                            x + (sampleX + 0.5f) / samplesPerAxis,
+                            y + (sampleY + 0.5f) / samplesPerAxis);
+                        float outer = RoundedRectDistance(point, size, radius, 0);
+                        float inner = RoundedRectDistance(point, size, radius, stroke);
+                        if (outer <= 0 && inner >= 0)
+                            insideSamples++;
+                    }
+                }
+
+                byte alpha = (byte)(255 * insideSamples / (samplesPerAxis * samplesPerAxis));
+                pixels[y * size + x] = new Color32(255, 255, 255, alpha);
+            }
+        }
+
+        texture.SetPixels32(pixels);
+        texture.Apply(updateMipmaps: false, makeNoLongerReadable: true);
+        Sprite sprite = Sprite.Create(
+            texture,
+            new Rect(0, 0, size, size),
+            new Vector2(0.5f, 0.5f),
+            pixelsPerUnit: 100f,
+            extrude: 0,
+            SpriteMeshType.FullRect,
+            new Vector4(13, 13, 13, 13));
+        sprite.name = "ItemSpawnerEnhanced Focus Outline";
+        sprite.hideFlags = HideFlags.HideAndDontSave;
+        return sprite;
+    }
+
+    private static float RoundedRectDistance(Vector2 point, float size, float radius, float inset)
+    {
+        Vector2 center = new(size * 0.5f, size * 0.5f);
+        float insetSize = size - inset * 2f;
+        float insetRadius = Mathf.Max(0, radius - inset);
+        float straightHalfExtent = insetSize * 0.5f - insetRadius;
+        Vector2 distance = new(
+            Mathf.Abs(point.x - center.x) - straightHalfExtent,
+            Mathf.Abs(point.y - center.y) - straightHalfExtent);
+        Vector2 outside = new(Mathf.Max(distance.x, 0), Mathf.Max(distance.y, 0));
+        return outside.magnitude + Mathf.Min(Mathf.Max(distance.x, distance.y), 0) - insetRadius;
     }
 
     private static Texture2D CreateFilterClearTexture() => CreateLineTexture(

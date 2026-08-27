@@ -9,6 +9,9 @@ internal sealed class TagToggle
 {
     private readonly Image _background;
     private readonly RawImage? _heart;
+    private readonly Image _focusFrame;
+    private readonly ControlInteractionState _interaction;
+    private bool _active;
 
     public TagToggle(
         ItemFilterTag tag,
@@ -22,29 +25,39 @@ internal sealed class TagToggle
         _background = background;
         Label = label;
         _heart = heart;
+        _focusFrame = RuntimeUiFactory.CreateFocusFrame(toggle.transform);
+        _interaction = toggle.gameObject.AddComponent<ControlInteractionState>();
+        _interaction.Changed += Render;
+        Toggle.transition = Selectable.Transition.None;
+        Render();
     }
 
     public ItemFilterTag Tag { get; }
     public Toggle Toggle { get; }
     public TMP_Text Label { get; }
 
-    public void SetSelected(bool selected)
+    public void SetActive(bool active)
     {
-        Color normal = selected ? RuntimeUiFactory.Accent : RuntimeUiFactory.Surface;
-        ColorBlock colors = ColorBlock.defaultColorBlock;
-        colors.normalColor = normal;
-        colors.highlightedColor = selected
-            ? Color.Lerp(RuntimeUiFactory.Accent, Color.white, 0.12f)
-            : RuntimeUiFactory.SurfaceHover;
-        colors.pressedColor = RuntimeUiFactory.Accent;
-        colors.selectedColor = colors.highlightedColor;
-        colors.disabledColor = new Color(normal.r, normal.g, normal.b, 0.45f);
-        colors.colorMultiplier = 1;
-        colors.fadeDuration = 0.08f;
-        Toggle.colors = colors;
-        _background.color = normal;
-        Label.color = selected ? RuntimeUiFactory.Panel : RuntimeUiFactory.TextPrimary;
+        _active = active;
+        Render();
+    }
+
+    public void SetFocused(bool focused) => _interaction.SetFocused(focused);
+
+    public void SetControllerPressed(bool pressed) => _interaction.SetControllerPressed(pressed);
+
+    private void Render()
+    {
+        Core.ControlVisualState state = Core.ControllerVisualState.ForTag(
+            _active,
+            _interaction.Focused,
+            _interaction.Hovered,
+            _interaction.Pressed);
+        _background.color = RuntimeUiFactory.ResolvePalette(state.Background);
+        Color foreground = RuntimeUiFactory.ResolvePalette(state.Foreground);
+        Label.color = foreground;
         if (_heart != null)
-            _heart.color = selected ? RuntimeUiFactory.Panel : RuntimeUiFactory.TextPrimary;
+            _heart.color = foreground;
+        _focusFrame.gameObject.SetActive(state.ShowFocus);
     }
 }

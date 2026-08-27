@@ -57,7 +57,7 @@ internal static class ItemSpawnerViewBuilder
 
         TMP_InputField search = RuntimeUiFactory.CreateInputField(toolbar, font);
         Button searchClear = RuntimeUiFactory.CreateSearchClearButton(search.transform);
-        TMP_Dropdown dropdown = RuntimeUiFactory.CreateDropdown(toolbar, font);
+        TargetDropdownVisual dropdown = RuntimeUiFactory.CreateDropdown(toolbar, font);
 
         RectTransform tagBar = RuntimeUiFactory.CreateRect("Tags", panel, typeof(HorizontalLayoutGroup));
         tagBar.anchorMin = new Vector2(0.5f, 1);
@@ -87,6 +87,10 @@ internal static class ItemSpawnerViewBuilder
             .ToArray();
 
         (Button tagClear, RawImage tagClearIcon) = RuntimeUiFactory.CreateFilterClearButton(panel);
+        var tagClearVisual = new ActionButtonVisual(
+            tagClear,
+            (Image)tagClear.targetGraphic,
+            tagClearIcon);
         RectTransform tagClearRect = tagClear.GetComponent<RectTransform>();
         tagClearRect.anchorMin = new Vector2(0.5f, 1);
         tagClearRect.anchorMax = new Vector2(0.5f, 1);
@@ -121,11 +125,11 @@ internal static class ItemSpawnerViewBuilder
             content,
             close,
             searchClear,
-            tagClear,
-            tagClearIcon,
+            tagClearVisual,
             tagClearTooltip,
             tooltip,
-            tagToggles);
+            tagToggles,
+            scroll);
     }
 
     private static TMP_FontAsset ResolveFont()
@@ -148,16 +152,16 @@ internal readonly struct ItemSpawnerViewReferences
         TMP_FontAsset font,
         TextMeshProUGUI title,
         TMP_InputField search,
-        TMP_Dropdown targetDropdown,
+        TargetDropdownVisual targetDropdown,
         TextMeshProUGUI status,
         RectTransform itemContent,
         Button close,
         Button searchClear,
-        Button tagClear,
-        RawImage tagClearIcon,
+        ActionButtonVisual tagClear,
         ItemNameTooltipTrigger tagClearTooltip,
         ItemNameTooltip tooltip,
-        IReadOnlyList<TagToggle> tagToggles)
+        IReadOnlyList<TagToggle> tagToggles,
+        ScrollRect itemScroll)
     {
         Font = font;
         Title = title;
@@ -168,23 +172,23 @@ internal readonly struct ItemSpawnerViewReferences
         Close = close;
         SearchClear = searchClear;
         TagClear = tagClear;
-        TagClearIcon = tagClearIcon;
         TagClearTooltip = tagClearTooltip;
         Tooltip = tooltip;
         TagToggles = tagToggles;
+        ItemScroll = itemScroll;
     }
 
     public TMP_FontAsset Font { get; }
     public TextMeshProUGUI Title { get; }
     public TMP_InputField Search { get; }
-    public TMP_Dropdown TargetDropdown { get; }
+    public TargetDropdownVisual TargetDropdown { get; }
     public TextMeshProUGUI Status { get; }
     public RectTransform ItemContent { get; }
     public Button Close { get; }
     public Button SearchClear { get; }
-    public Button TagClear { get; }
-    public RawImage TagClearIcon { get; }
+    public ActionButtonVisual TagClear { get; }
     public ItemNameTooltipTrigger TagClearTooltip { get; }
     public ItemNameTooltip Tooltip { get; }
     public IReadOnlyList<TagToggle> TagToggles { get; }
+    public ScrollRect ItemScroll { get; }
 }

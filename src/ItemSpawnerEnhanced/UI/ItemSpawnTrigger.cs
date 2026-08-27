@@ -19,6 +19,8 @@ internal sealed class ItemSpawnTrigger : MonoBehaviour,
     private float _nextSpawnAt;
     private bool _holding;
 
+    public bool SpawnEnabled { get; set; }
+
     public void Configure(Button button, UnityAction spawn)
     {
         _button = button;
@@ -49,6 +51,18 @@ internal sealed class ItemSpawnTrigger : MonoBehaviour,
             _spawn?.Invoke();
     }
 
+    public void BeginControllerHold()
+    {
+        if (!CanSpawn())
+            return;
+
+        _holding = true;
+        _nextSpawnAt = Time.unscaledTime + RepeatDelaySeconds;
+        _spawn?.Invoke();
+    }
+
+    public void EndControllerHold() => _holding = false;
+
     private void Update()
     {
         if (!_holding)
@@ -69,7 +83,7 @@ internal sealed class ItemSpawnTrigger : MonoBehaviour,
     }
 
     private bool CanSpawn() =>
-        _button != null && _button.IsActive() && _button.IsInteractable();
+        SpawnEnabled && _button != null && _button.IsActive();
 
     private void OnDisable() => _holding = false;
 }

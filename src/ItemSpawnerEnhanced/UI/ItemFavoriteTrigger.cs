@@ -12,9 +12,17 @@ internal sealed class ItemFavoriteTrigger : MonoBehaviour, IPointerClickHandler
 
     public void Configure(UnityAction onFavorite) => _onFavorite = onFavorite;
 
+    public bool TryInvoke()
+    {
+        if (!InteractionEnabled)
+            return false;
+        _onFavorite?.Invoke();
+        return _onFavorite != null;
+    }
+
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (InteractionEnabled && eventData.button == PointerEventData.InputButton.Right)
-            _onFavorite?.Invoke();
+        if (eventData.button == PointerEventData.InputButton.Right)
+            TryInvoke();
     }
 }

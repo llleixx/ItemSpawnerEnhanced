@@ -14,18 +14,19 @@ internal sealed class ItemSpawnerView
     private readonly TMP_FontAsset _font;
     private readonly CanvasGroup _canvasGroup;
     private readonly TMP_InputField _search;
-    private readonly TMP_Dropdown _targetDropdown;
+    private readonly TargetDropdownVisual _targetDropdown;
     private readonly TextMeshProUGUI _title;
     private readonly TextMeshProUGUI _status;
     private readonly RectTransform _itemContent;
     private readonly Button _close;
     private readonly Button _searchClear;
-    private readonly Button _tagClear;
-    private readonly RawImage _tagClearIcon;
+    private readonly ActionButtonVisual _tagClear;
     private readonly ItemNameTooltipTrigger _tagClearTooltip;
     private readonly ItemNameTooltip _tooltip;
     private readonly IReadOnlyList<TagToggle> _tagToggles;
+    private readonly ScrollRect _itemScroll;
     private readonly List<ItemTile> _tiles = new();
+    private readonly List<ItemTile> _visibleTiles = new();
     private readonly Dictionary<GameItemRecord, ItemTile> _tileByRecord = new();
     private bool? _spawnEnabled;
     private int _visibleItemCount;
@@ -36,16 +37,16 @@ internal sealed class ItemSpawnerView
         CanvasGroup canvasGroup,
         TextMeshProUGUI title,
         TMP_InputField search,
-        TMP_Dropdown targetDropdown,
+        TargetDropdownVisual targetDropdown,
         TextMeshProUGUI status,
         RectTransform itemContent,
         Button close,
         Button searchClear,
-        Button tagClear,
-        RawImage tagClearIcon,
+        ActionButtonVisual tagClear,
         ItemNameTooltipTrigger tagClearTooltip,
         ItemNameTooltip tooltip,
-        IReadOnlyList<TagToggle> tagToggles)
+        IReadOnlyList<TagToggle> tagToggles,
+        ScrollRect itemScroll)
     {
         Root = root;
         _font = font;
@@ -58,16 +59,27 @@ internal sealed class ItemSpawnerView
         _close = close;
         _searchClear = searchClear;
         _tagClear = tagClear;
-        _tagClearIcon = tagClearIcon;
         _tagClearTooltip = tagClearTooltip;
         _tooltip = tooltip;
         _tagToggles = tagToggles;
+        _itemScroll = itemScroll;
     }
 
     public GameObject Root { get; }
     public Selectable SearchSelectable => _search;
     public string SearchText => _search.text;
     public int VisibleItemCount => _visibleItemCount;
+    internal TargetDropdownVisual TargetDropdown => _targetDropdown;
+    internal IReadOnlyList<TagToggle> TagToggles => _tagToggles;
+    internal ActionButtonVisual TagClear => _tagClear;
+    internal ScrollRect ItemScroll => _itemScroll;
+    internal RectTransform ItemContent => _itemContent;
+    internal IReadOnlyList<ItemTile> VisibleTiles => _visibleTiles;
+
+    internal void ShowControllerTooltip(ItemTile tile) =>
+        _tooltip.BeginAnchored(tile, tile.Record.DisplayName, tile.RectTransform);
+
+    internal void HideTooltip() => _tooltip.Hide();
 
     public static ItemSpawnerView Create()
     {
@@ -105,10 +117,10 @@ internal sealed class ItemSpawnerView
                 references.Close,
                 references.SearchClear,
                 references.TagClear,
-                references.TagClearIcon,
                 references.TagClearTooltip,
                 references.Tooltip,
-                references.TagToggles);
+                references.TagToggles,
+                references.ItemScroll);
         }
         catch
         {
@@ -138,18 +150,18 @@ internal sealed class ItemSpawnerView
             searchChanged(string.Empty);
             _search.ActivateInputField();
         });
-        _tagClear.onClick.AddListener(() =>
+        _tagClear.Button.onClick.AddListener(() =>
         {
             _tooltip.Hide();
             clearTags();
         });
-        _targetDropdown.onValueChanged.AddListener(targetChanged);
+        _targetDropdown.Dropdown.onValueChanged.AddListener(targetChanged);
         foreach (TagToggle tagToggle in _tagToggles)
         {
             TagToggle captured = tagToggle;
             captured.Toggle.onValueChanged.AddListener(selected =>
             {
-                captured.SetSelected(selected);
+                captured.SetActive(selected);
                 tagChanged(captured.Tag, selected);
                 UpdateTagClearButton();
             });
@@ -193,6 +205,7 @@ internal sealed class ItemSpawnerView
             UnityEngine.Object.Destroy(tile.GameObject);
         }
         _tiles.Clear();
+        _visibleTiles.Clear();
         _tileByRecord.Clear();
         _visibleItemCount = 0;
         _spawnEnabled = null;
@@ -212,8 +225,9 @@ internal sealed class ItemSpawnerView
             toggleFavorite,
             isFavorite,
             _tooltip);
-        tile.Button.interactable = false;
+        tile.SetSpawnEnabled(false);
         _tiles.Add(tile);
+        _visibleTiles.Add(tile);
         _tileByRecord.Add(record, tile);
         _visibleItemCount++;
     }
@@ -236,7 +250,7 @@ internal sealed class ItemSpawnerView
         {
             bool selected = (selectedTags & tagToggle.Tag) != 0;
             tagToggle.Toggle.SetIsOnWithoutNotify(selected);
-            tagToggle.SetSelected(selected);
+            tagToggle.SetActive(selected);
         }
         UpdateTagClearButton();
     }
@@ -247,10 +261,7 @@ internal sealed class ItemSpawnerView
     private void UpdateTagClearButton()
     {
         bool enabled = _tagToggles.Any(tagToggle => tagToggle.Toggle.isOn);
-        _tagClear.interactable = enabled;
-        _tagClearIcon.color = enabled
-            ? RuntimeUiFactory.TextPrimary
-            : new Color(RuntimeUiFactory.TextMuted.r, RuntimeUiFactory.TextMuted.g, RuntimeUiFactory.TextMuted.b, 0.35f);
+        _tagClear.SetEnabled(enabled);
     }
 
     public void ShowSearchResults(IReadOnlyList<GameItemRecord> results)
@@ -265,12 +276,14 @@ internal sealed class ItemSpawnerView
         }
 
         int visibleItemCount = 0;
+        _visibleTiles.Clear();
         for (int index = 0; index < results.Count; index++)
         {
             if (!_tileByRecord.TryGetValue(results[index], out ItemTile? tile))
                 continue;
             if (tile.GameObject.transform.GetSiblingIndex() != index)
                 tile.GameObject.transform.SetSiblingIndex(index);
+            _visibleTiles.Add(tile);
             visibleItemCount++;
         }
         _visibleItemCount = visibleItemCount;
@@ -278,10 +291,12 @@ internal sealed class ItemSpawnerView
 
     public void SetTargets(IReadOnlyList<string> labels, int selectedIndex)
     {
-        _targetDropdown.ClearOptions();
-        _targetDropdown.AddOptions(labels.Select(label => new TMP_Dropdown.OptionData(label)).ToList());
-        _targetDropdown.SetValueWithoutNotify(Math.Max(0, selectedIndex));
-        _targetDropdown.RefreshShownValue();
+        TMP_Dropdown dropdown = _targetDropdown.Dropdown;
+        dropdown.ClearOptions();
+        dropdown.AddOptions(labels.Select(label => new TMP_Dropdown.OptionData(label)).ToList());
+        dropdown.SetValueWithoutNotify(Math.Max(0, selectedIndex));
+        dropdown.RefreshShownValue();
+        _targetDropdown.SetEnabled(labels.Count > 0);
     }
 
     public void SetSpawnEnabled(bool enabled, bool force = false)
@@ -291,7 +306,7 @@ internal sealed class ItemSpawnerView
 
         _spawnEnabled = enabled;
         foreach (ItemTile tile in _tiles)
-            tile.Button.interactable = enabled;
+            tile.SetSpawnEnabled(enabled);
     }
 
     public void SetStatus(string text, bool isError)

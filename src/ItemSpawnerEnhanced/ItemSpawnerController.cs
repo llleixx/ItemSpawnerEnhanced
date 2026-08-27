@@ -10,6 +10,7 @@ internal sealed class ItemSpawnerController : IDisposable
     private readonly ManualLogSource _logger;
     private readonly ModConfig _settings;
     private readonly FavoriteStore _favorites;
+    private readonly ItemSpawnerInput _input;
     private readonly ItemBrowserSession _browserSession = new();
     private ItemSpawnerWindow? _window;
 
@@ -18,6 +19,7 @@ internal sealed class ItemSpawnerController : IDisposable
         _logger = logger;
         _settings = settings;
         _favorites = new FavoriteStore(settings.FavoriteItemNamesEntry, logger);
+        _input = new ItemSpawnerInput(settings, logger);
     }
 
     public void Attach()
@@ -37,9 +39,25 @@ internal sealed class ItemSpawnerController : IDisposable
 
     public void Tick()
     {
-        KeyCode toggleKey = _settings.ToggleKey;
-        if (_window != null && toggleKey != KeyCode.None && Input.GetKeyDown(toggleKey))
-            _window.ToggleWindow();
+        ItemSpawnerInputSnapshot input = _input.ReadSnapshot();
+        if (_window == null)
+            return;
+
+        if (input.ControllerToggle)
+        {
+            if (_window.IsOpen || CanOpenWithController())
+                _window.ToggleWindow(WindowInputSource.Controller);
+            return;
+        }
+
+        if (input.KeyboardToggle)
+        {
+            _window.ToggleWindow(WindowInputSource.Keyboard);
+            return;
+        }
+
+        if (_window.IsOpen)
+            _window.HandleControllerInput(input);
     }
 
     public void Dispose()
@@ -50,5 +68,12 @@ internal sealed class ItemSpawnerController : IDisposable
             UnityEngine.Object.Destroy(_window.gameObject);
         }
         _window = null;
+        _input.Dispose();
+    }
+
+    private static bool CanOpenWithController()
+    {
+        GUIManager? gui = GUIManager.instance;
+        return Time.timeScale > 0 && gui != null && !gui.windowBlockingInput && !gui.wheelActive;
     }
 }

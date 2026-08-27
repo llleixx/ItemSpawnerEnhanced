@@ -25,7 +25,8 @@ A client-side item spawner for PEAK built for players across **every supported g
 
 ### Core features
 
-- **Responsive item browser:** Press `F5` to open a clean interface with larger text and controls.
+- **Responsive item browser:** Press `F5` or hold `View/Share` and press `RT/R2` to open a clean interface with larger text and controls.
+- **Full controller support:** Navigate targets, filters, and items with a gamepad, with persistent focus, automatic scrolling, controller favorites, and accessible focus visuals.
 - **Smart targeting:** Spawn for yourself while alive or automatically target the Scout you are spectating after death.
 - **Any Scout:** Select any available Scout in the room from the target dropdown.
 - **Modded item support:** Discover items registered in PEAK's item database, including items added by other mods.
@@ -70,19 +71,52 @@ Language mod authors are welcome to add transliterations and other language-spec
 
 ## Installation
 
-> **Compatibility notice:** Do not install ItemSpawnerEnhanced alongside [`quackandcheese-ItemSpawner`](https://thunderstore.io/c/peak/p/quackandcheese/ItemSpawner/). With both mods installed, each responds to its configured toggle key (`F5` by default), so pressing `F5` opens both item-spawner windows. Remove the original ItemSpawner before installing ItemSpawnerEnhanced.
+Install ItemSpawnerEnhanced with a mod manager. For a manual installation:
 
-1. **Install** `BepInExPack_PEAK`.
-2. **Install ItemSpawnerEnhanced** through a mod manager. For a manual installation, extract the package and copy its `plugins/ItemSpawnerEnhanced` folder into `<PEAK>/BepInEx/plugins/`.
+1. Install `BepInExPack_PEAK`.
+2. Extract the package and copy `plugins/ItemSpawnerEnhanced` into `<PEAK>/BepInEx/plugins/`.
 
-After installation, both plugin files should be at:
+The installed files should be:
 
 ```text
 <PEAK>/BepInEx/plugins/ItemSpawnerEnhanced/ItemSpawnerEnhanced.dll
 <PEAK>/BepInEx/plugins/ItemSpawnerEnhanced/ItemSpawnerEnhanced.ChineseSearch.dll
 ```
 
-The toggle key, tag selection behavior, tag matching mode, and catalog visibility can be changed in **`BepInEx/config/com.github.lllei.ItemSpawnerEnhanced.cfg`**. Only one tag can be selected at a time by default; set `SingleTagSelection = false` to enable multi-select, then use `TagMatchMode = And` or `Or` to control how selected tags are combined. Set `ShowAllItems = true` to include unused, test, cheat, and internal duplicate prefabs. Favorite item names are saved automatically in the same file.
+## Usage
+
+Press `F5`, or hold `View/Share` and press `RT/R2`, to open the item spawner.
+
+- Click an item to spawn it, or hold the left mouse button to spawn repeatedly.
+- Right-click an item to favorite or unfavorite it.
+- Keyboard opening focuses search; controller opening focuses the first visible item.
+
+### Controller controls
+
+| Input | Action |
+| --- | --- |
+| Left stick / D-pad | Move focus between the target, tags, clear button, and item grid |
+| A / Cross | Activate the focused control or spawn the focused item; hold to spawn repeatedly |
+| B / Circle | Close the target list, or close the item spawner |
+| X / Square | Favorite or unfavorite the focused item |
+| LB / L1 and RB / R1 | Cycle backward or forward through the target, tag, and item regions |
+
+Search entry is currently a mouse-and-keyboard workflow.
+
+## Configuration
+
+Settings are stored in `BepInEx/config/com.github.lllei.ItemSpawnerEnhanced.cfg`.
+
+| Setting | Default | Purpose |
+| --- | --- | --- |
+| `General.ToggleKey` | `F5` | Keyboard shortcut for opening and closing the item spawner |
+| `Controls.ControllerChordModifierPath` | `<Gamepad>/select` | Controller button held as the shortcut modifier |
+| `Controls.ControllerTogglePath` | `<Gamepad>/rightTrigger` | Controller button pressed to open or close the item spawner |
+| `Filtering.SingleTagSelection` | `true` | Replace the active tag when another tag is selected |
+| `Filtering.TagMatchMode` | `And` | Combine multiple selected tags with `And` or `Or` matching |
+| `Catalog.ShowAllItems` | `false` | Include unused, test, cheat, and internal duplicate prefabs |
+
+Controller bindings use Unity Input System paths. Set the modifier to empty or `None` for a single-button shortcut; set the toggle path to empty or `None` to disable controller opening. Favorites are managed by the UI and saved automatically in the same configuration file.
 
 See the [item tag and catalog visibility reference](https://github.com/llleixx/ItemSpawnerEnhanced/blob/main/docs/ITEM_TAGS.md) for classification rules and the complete default-hidden list.
 

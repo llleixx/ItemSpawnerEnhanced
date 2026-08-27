@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Added configurable controller opening with `View/Share + RT/R2` by default.
+- Added full controller navigation for targets, tag filters, clearing filters, and the item grid, including focus restoration and automatic scrolling.
+- Added controller spawning, hold-to-repeat spawning, favorites, fast region switching, and anchored full-name tooltips.
+- Added independent high-contrast focus visuals for inactive and active tags, target options, disabled item tiles, and action buttons.
+
 ## 1.2.1 - 2026-08-19
 
 - Kept favorited default-hidden prefabs visible when `ShowAllItems` is disabled.

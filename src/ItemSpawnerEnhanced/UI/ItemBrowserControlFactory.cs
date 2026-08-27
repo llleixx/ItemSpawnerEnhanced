@@ -49,7 +49,7 @@ internal static class ItemBrowserControlFactory
         }
 
         var result = new TagToggle(tag, toggle, background, label, heart);
-        result.SetSelected(false);
+        result.SetActive(false);
         return result;
     }
 
@@ -91,7 +91,8 @@ internal static class ItemBrowserControlFactory
         Button button = root.GetComponent<Button>();
         button.targetGraphic = background;
         button.colors = RuntimeUiFactory.CreateButtonColors();
-        root.gameObject.AddComponent<ItemSpawnTrigger>().Configure(button, onClick);
+        ItemSpawnTrigger spawnTrigger = root.gameObject.AddComponent<ItemSpawnTrigger>();
+        spawnTrigger.Configure(button, onClick);
 
         RectTransform iconRect = RuntimeUiFactory.CreateRect("Icon", root, typeof(RawImage));
         iconRect.anchorMin = new Vector2(0.5f, 1);
@@ -131,6 +132,15 @@ internal static class ItemBrowserControlFactory
         ItemFavoriteTrigger favoriteTrigger = root.gameObject.AddComponent<ItemFavoriteTrigger>();
         favoriteTrigger.Configure(onFavorite);
         root.gameObject.AddComponent<ItemNameTooltipTrigger>().Configure(tooltip, record.DisplayName);
-        return new ItemTile(record, root.gameObject, button, favoriteMarker.gameObject, favoriteTrigger);
+        return new ItemTile(
+            record,
+            root.gameObject,
+            button,
+            background,
+            label,
+            icon,
+            favoriteMarker.gameObject,
+            favoriteTrigger,
+            spawnTrigger);
     }
 }

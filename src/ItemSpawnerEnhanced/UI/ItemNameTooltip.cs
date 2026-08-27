@@ -16,7 +16,8 @@ internal sealed class ItemNameTooltip : MonoBehaviour
     private RectTransform _bounds = null!;
     private RectTransform _visual = null!;
     private TextMeshProUGUI _label = null!;
-    private ItemNameTooltipTrigger? _owner;
+    private object? _owner;
+    private RectTransform? _anchor;
     private string _text = string.Empty;
     private Vector2 _screenPosition;
     private float _showAt;
@@ -35,6 +36,17 @@ internal sealed class ItemNameTooltip : MonoBehaviour
         _owner = owner;
         _text = text;
         _screenPosition = screenPosition;
+        _anchor = null;
+        _showAt = Time.unscaledTime + ShowDelaySeconds;
+        _visible = false;
+        _visual.gameObject.SetActive(false);
+    }
+
+    public void BeginAnchored(object owner, string text, RectTransform anchor)
+    {
+        _owner = owner;
+        _text = text;
+        _anchor = anchor;
         _showAt = Time.unscaledTime + ShowDelaySeconds;
         _visible = false;
         _visual.gameObject.SetActive(false);
@@ -42,7 +54,7 @@ internal sealed class ItemNameTooltip : MonoBehaviour
 
     public void Move(ItemNameTooltipTrigger owner, Vector2 screenPosition)
     {
-        if (_owner != owner)
+        if (!ReferenceEquals(_owner, owner))
             return;
 
         _screenPosition = screenPosition;
@@ -52,13 +64,14 @@ internal sealed class ItemNameTooltip : MonoBehaviour
 
     public void End(ItemNameTooltipTrigger owner)
     {
-        if (_owner == owner)
+        if (ReferenceEquals(_owner, owner))
             Hide();
     }
 
     public void Hide()
     {
         _owner = null;
+        _anchor = null;
         _text = string.Empty;
         _visible = false;
         if (_visual != null)
@@ -88,7 +101,10 @@ internal sealed class ItemNameTooltip : MonoBehaviour
         _visual.SetAsLastSibling();
         _visual.gameObject.SetActive(true);
         _visible = true;
-        PositionVisual();
+        if (_anchor != null)
+            PositionAnchoredVisual();
+        else
+            PositionVisual();
     }
 
     private void PositionVisual()
@@ -105,6 +121,32 @@ internal sealed class ItemNameTooltip : MonoBehaviour
             x = pointer.x - size.x - PointerOffset;
         if (y - size.y < bounds.yMin + EdgeMargin)
             y = pointer.y + size.y + PointerOffset;
+
+        x = Mathf.Clamp(x, bounds.xMin + EdgeMargin, bounds.xMax - size.x - EdgeMargin);
+        y = Mathf.Clamp(y, bounds.yMin + size.y + EdgeMargin, bounds.yMax - EdgeMargin);
+        _visual.anchoredPosition = new Vector2(x, y);
+    }
+
+    private void PositionAnchoredVisual()
+    {
+        if (_anchor == null)
+            return;
+
+        var corners = new Vector3[4];
+        _anchor.GetWorldCorners(corners);
+        for (int index = 0; index < corners.Length; index++)
+            corners[index] = _bounds.InverseTransformPoint(corners[index]);
+
+        Rect bounds = _bounds.rect;
+        Vector2 size = _visual.sizeDelta;
+        float left = corners[0].x;
+        float right = corners[2].x;
+        float bottom = corners[0].y;
+        float top = corners[2].y;
+        float x = (left + right - size.x) * 0.5f;
+        float y = top + PointerOffset + size.y;
+        if (y > bounds.yMax - EdgeMargin)
+            y = bottom - PointerOffset;
 
         x = Mathf.Clamp(x, bounds.xMin + EdgeMargin, bounds.xMax - size.x - EdgeMargin);
         y = Mathf.Clamp(y, bounds.yMin + size.y + EdgeMargin, bounds.yMax - EdgeMargin);

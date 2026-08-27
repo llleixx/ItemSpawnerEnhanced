@@ -6,6 +6,28 @@ namespace ItemSpawnerEnhanced;
 
 internal sealed class ModConfig
 {
+    private static readonly string[] ControllerPathOptions =
+    {
+        "<Gamepad>/select",
+        "<Gamepad>/start",
+        "<Gamepad>/leftShoulder",
+        "<Gamepad>/rightShoulder",
+        "<Gamepad>/buttonSouth",
+        "<Gamepad>/buttonEast",
+        "<Gamepad>/buttonWest",
+        "<Gamepad>/buttonNorth",
+        "<Gamepad>/leftTrigger",
+        "<Gamepad>/rightTrigger",
+        "<Gamepad>/leftStickPress",
+        "<Gamepad>/rightStickPress",
+        "<Gamepad>/dpad/up",
+        "<Gamepad>/dpad/down",
+        "<Gamepad>/dpad/left",
+        "<Gamepad>/dpad/right",
+        "None",
+        ""
+    };
+
     private readonly ConfigEntry<KeyCode> _toggleKey;
     private readonly ConfigEntry<bool> _showAllItems;
     private readonly ConfigEntry<bool> _singleTagSelection;
@@ -19,6 +41,26 @@ internal sealed class ModConfig
             "ToggleKey",
             KeyCode.F5,
             "The keyboard key used to open and close the item spawner.");
+
+        ControllerChordModifierPath = config.Bind(
+            "Controls",
+            "ControllerChordModifierPath",
+            "<Gamepad>/select",
+            new ConfigDescription(
+                "Controller button held as the optional modifier for the item spawner shortcut. " +
+                "Default: <Gamepad>/select (Xbox View / PlayStation Share). " +
+                "Leave empty or set to None for a single-button shortcut.",
+                new AcceptableValueList<string>(ControllerPathOptions)));
+
+        ControllerTogglePath = config.Bind(
+            "Controls",
+            "ControllerTogglePath",
+            "<Gamepad>/rightTrigger",
+            new ConfigDescription(
+                "Controller button pressed with the optional modifier to open or close the item spawner. " +
+                "Default: <Gamepad>/rightTrigger (Xbox RT / PlayStation R2). " +
+                "Leave empty or set to None to disable.",
+                new AcceptableValueList<string>(ControllerPathOptions)));
 
         _showAllItems = config.Bind(
             "Catalog",
@@ -46,6 +88,8 @@ internal sealed class ModConfig
     }
 
     public KeyCode ToggleKey => _toggleKey.Value;
+    public ConfigEntry<string> ControllerChordModifierPath { get; }
+    public ConfigEntry<string> ControllerTogglePath { get; }
     public bool ShowAllItems => _showAllItems.Value;
     public bool SingleTagSelection => _singleTagSelection.Value;
     public TagMatchMode TagMatchMode => _tagMatchMode.Value;
