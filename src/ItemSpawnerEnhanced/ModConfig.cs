@@ -1,6 +1,5 @@
 using BepInEx.Configuration;
 using ItemSpawnerEnhanced.Core;
-using UnityEngine;
 
 namespace ItemSpawnerEnhanced;
 
@@ -28,7 +27,6 @@ internal sealed class ModConfig
         ""
     };
 
-    private readonly ConfigEntry<KeyCode> _toggleKey;
     private readonly ConfigEntry<bool> _showAllItems;
     private readonly ConfigEntry<bool> _singleTagSelection;
     private readonly ConfigEntry<TagMatchMode> _tagMatchMode;
@@ -36,11 +34,12 @@ internal sealed class ModConfig
 
     public ModConfig(ConfigFile config)
     {
-        _toggleKey = config.Bind(
-            "General",
-            "ToggleKey",
-            KeyCode.F5,
-            "The keyboard key used to open and close the item spawner.");
+        KeyboardTogglePath = config.Bind(
+            "Controls",
+            "KeyboardTogglePath",
+            "<Keyboard>/f5",
+            "Unity Input System control path used to open and close the item spawner with a keyboard. " +
+            "Leave empty or set to None to disable.");
 
         ControllerChordModifierPath = config.Bind(
             "Controls",
@@ -87,7 +86,7 @@ internal sealed class ModConfig
             "Favorite item prefab names stored as a JSON array. Manage these in the item spawner UI.");
     }
 
-    public KeyCode ToggleKey => _toggleKey.Value;
+    public ConfigEntry<string> KeyboardTogglePath { get; }
     public ConfigEntry<string> ControllerChordModifierPath { get; }
     public ConfigEntry<string> ControllerTogglePath { get; }
     public bool ShowAllItems => _showAllItems.Value;

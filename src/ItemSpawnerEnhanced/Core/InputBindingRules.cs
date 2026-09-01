@@ -1,6 +1,6 @@
 namespace ItemSpawnerEnhanced.Core;
 
-internal static class ControllerBindingRules
+internal static class InputBindingRules
 {
     public static string NormalizeBindingPath(string? path)
     {

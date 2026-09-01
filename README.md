@@ -109,14 +109,14 @@ Settings are stored in `BepInEx/config/com.github.lllei.ItemSpawnerEnhanced.cfg`
 
 | Setting | Default | Purpose |
 | --- | --- | --- |
-| `General.ToggleKey` | `F5` | Keyboard shortcut for opening and closing the item spawner |
+| `Controls.KeyboardTogglePath` | `<Keyboard>/f5` | Keyboard control path for opening and closing the item spawner |
 | `Controls.ControllerChordModifierPath` | `<Gamepad>/select` | Controller button held as the shortcut modifier |
 | `Controls.ControllerTogglePath` | `<Gamepad>/rightTrigger` | Controller button pressed to open or close the item spawner |
 | `Filtering.SingleTagSelection` | `true` | Replace the active tag when another tag is selected |
 | `Filtering.TagMatchMode` | `And` | Combine multiple selected tags with `And` or `Or` matching |
 | `Catalog.ShowAllItems` | `false` | Include unused, test, cheat, and internal duplicate prefabs |
 
-Controller bindings use Unity Input System paths. Set the modifier to empty or `None` for a single-button shortcut; set the toggle path to empty or `None` to disable controller opening. Favorites are managed by the UI and saved automatically in the same configuration file.
+Keyboard and controller bindings use Unity Input System control paths. Set the keyboard path to empty or `None` to disable keyboard opening. Set the controller modifier to empty or `None` for a single-button shortcut; set the controller toggle path to empty or `None` to disable controller opening. Favorites are managed by the UI and saved automatically in the same configuration file.
 
 See the [item tag and catalog visibility reference](https://github.com/llleixx/ItemSpawnerEnhanced/blob/main/docs/ITEM_TAGS.md) for classification rules and the complete default-hidden list.
 

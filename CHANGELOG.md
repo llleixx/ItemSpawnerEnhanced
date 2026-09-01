@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Replaced the legacy `KeyCode` keyboard shortcut and `UnityEngine.Input` polling with a configurable Unity Input System control path, and removed the `UnityEngine.InputLegacyModule` dependency.
+
 ## 1.3.0 - 2026-08-28
 
 - Added configurable controller opening with `View/Share + RT/R2` by default.
