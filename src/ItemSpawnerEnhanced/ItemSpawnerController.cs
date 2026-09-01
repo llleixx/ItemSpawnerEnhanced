@@ -45,14 +45,15 @@ internal sealed class ItemSpawnerController : IDisposable
 
         if (input.ControllerToggle)
         {
-            if (_window.IsOpen || CanOpenWithController())
+            if (_window.IsOpen || CanOpenWindow())
                 _window.ToggleWindow(WindowInputSource.Controller);
             return;
         }
 
         if (input.KeyboardToggle)
         {
-            _window.ToggleWindow(WindowInputSource.Keyboard);
+            if (_window.IsOpen || CanOpenWindow())
+                _window.ToggleWindow(WindowInputSource.Keyboard);
             return;
         }
 
@@ -71,7 +72,7 @@ internal sealed class ItemSpawnerController : IDisposable
         _input.Dispose();
     }
 
-    private static bool CanOpenWithController()
+    private static bool CanOpenWindow()
     {
         GUIManager? gui = GUIManager.instance;
         return Time.timeScale > 0 && gui != null && !gui.windowBlockingInput && !gui.wheelActive;
