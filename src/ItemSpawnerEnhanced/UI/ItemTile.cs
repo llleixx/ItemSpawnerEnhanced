@@ -30,6 +30,7 @@ internal sealed class ItemTile
         _interaction = button.gameObject.AddComponent<ControlInteractionState>();
         _interaction.Changed += Render;
         button.transition = Selectable.Transition.None;
+        RefreshIcon();
         Render();
     }
 
@@ -48,6 +49,25 @@ internal sealed class ItemTile
     public ItemSpawnTrigger SpawnTrigger { get; }
     public RectTransform RectTransform => (RectTransform)GameObject.transform;
     public bool CanSpawn => _canSpawn;
+
+    private void RefreshIcon()
+    {
+        Item.ItemUIData? uiData = Record.Item.UIData;
+        if (uiData == null)
+        {
+            _icon.texture = null;
+            return;
+        }
+
+        try
+        {
+            _icon.texture = uiData.GetIcon();
+        }
+        catch
+        {
+            _icon.texture = uiData.icon;
+        }
+    }
 
     public void SetFavorite(bool favorite) => FavoriteMarker.SetActive(favorite);
 

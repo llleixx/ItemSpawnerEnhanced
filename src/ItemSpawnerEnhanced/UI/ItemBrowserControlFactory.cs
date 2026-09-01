@@ -101,7 +101,6 @@ internal static class ItemBrowserControlFactory
         iconRect.anchoredPosition = new Vector2(0, -10);
         iconRect.sizeDelta = new Vector2(96, 96);
         RawImage icon = iconRect.GetComponent<RawImage>();
-        icon.texture = record.Item.UIData?.icon;
         icon.raycastTarget = false;
 
         TextMeshProUGUI label = RuntimeUiFactory.CreateText(

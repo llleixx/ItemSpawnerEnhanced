@@ -4,6 +4,7 @@
 
 - Replaced the legacy `KeyCode` keyboard shortcut and `UnityEngine.Input` polling with configurable Unity Input System control paths, and removed the `UnityEngine.InputLegacyModule` dependency.
 - Prevented the keyboard shortcut from opening the item spawner while PEAK is paused or another game window is blocking input.
+- Made item icons respect PEAK's bug-phobia and colorblind accessibility settings, including the alternate Tick and Scorpion icons.
 - Made control paths free-text settings where empty values disable their corresponding shortcuts.
 - Simplified user-facing configuration into `Controls` and `General` sections with readable, space-separated names while keeping the persisted favorites setting unchanged.
 
