@@ -5,28 +5,6 @@ namespace ItemSpawnerEnhanced;
 
 internal sealed class ModConfig
 {
-    private static readonly string[] ControllerPathOptions =
-    {
-        "<Gamepad>/select",
-        "<Gamepad>/start",
-        "<Gamepad>/leftShoulder",
-        "<Gamepad>/rightShoulder",
-        "<Gamepad>/buttonSouth",
-        "<Gamepad>/buttonEast",
-        "<Gamepad>/buttonWest",
-        "<Gamepad>/buttonNorth",
-        "<Gamepad>/leftTrigger",
-        "<Gamepad>/rightTrigger",
-        "<Gamepad>/leftStickPress",
-        "<Gamepad>/rightStickPress",
-        "<Gamepad>/dpad/up",
-        "<Gamepad>/dpad/down",
-        "<Gamepad>/dpad/left",
-        "<Gamepad>/dpad/right",
-        "None",
-        ""
-    };
-
     private readonly ConfigEntry<bool> _showAllItems;
     private readonly ConfigEntry<bool> _singleTagSelection;
     private readonly ConfigEntry<TagMatchMode> _tagMatchMode;
@@ -39,27 +17,23 @@ internal sealed class ModConfig
             "KeyboardTogglePath",
             "<Keyboard>/f5",
             "Unity Input System control path used to open and close the item spawner with a keyboard. " +
-            "Leave empty or set to None to disable.");
+            "Leave empty to disable.");
 
         ControllerChordModifierPath = config.Bind(
             "Controls",
             "ControllerChordModifierPath",
             "<Gamepad>/select",
-            new ConfigDescription(
-                "Controller button held as the optional modifier for the item spawner shortcut. " +
-                "Default: <Gamepad>/select (Xbox View / PlayStation Share). " +
-                "Leave empty or set to None for a single-button shortcut.",
-                new AcceptableValueList<string>(ControllerPathOptions)));
+            "Controller button held as the optional modifier for the item spawner shortcut. " +
+            "Default: <Gamepad>/select (Xbox View / PlayStation Share). " +
+            "Leave empty for a single-button shortcut.");
 
         ControllerTogglePath = config.Bind(
             "Controls",
             "ControllerTogglePath",
             "<Gamepad>/rightTrigger",
-            new ConfigDescription(
-                "Controller button pressed with the optional modifier to open or close the item spawner. " +
-                "Default: <Gamepad>/rightTrigger (Xbox RT / PlayStation R2). " +
-                "Leave empty or set to None to disable.",
-                new AcceptableValueList<string>(ControllerPathOptions)));
+            "Controller button pressed with the optional modifier to open or close the item spawner. " +
+            "Default: <Gamepad>/rightTrigger (Xbox RT / PlayStation R2). " +
+            "Leave empty to disable.");
 
         _showAllItems = config.Bind(
             "Catalog",

@@ -1,6 +1,5 @@
 using System;
 using BepInEx.Logging;
-using ItemSpawnerEnhanced.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -114,12 +113,9 @@ internal sealed class ItemSpawnerInput : IDisposable
     {
         DisposeActions();
 
-        string keyboardPath = InputBindingRules.NormalizeBindingPath(
-            _config.KeyboardTogglePath.Value);
-        string modifierPath = InputBindingRules.NormalizeBindingPath(
-            _config.ControllerChordModifierPath.Value);
-        string controllerPath = InputBindingRules.NormalizeBindingPath(
-            _config.ControllerTogglePath.Value);
+        string keyboardPath = _config.KeyboardTogglePath.Value?.Trim() ?? string.Empty;
+        string modifierPath = _config.ControllerChordModifierPath.Value?.Trim() ?? string.Empty;
+        string controllerPath = _config.ControllerTogglePath.Value?.Trim() ?? string.Empty;
 
         if (keyboardPath.Length > 0)
             _keyboardToggleAction = CreateKeyboardToggleAction(keyboardPath);

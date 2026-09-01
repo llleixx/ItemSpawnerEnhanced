@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.4.0 - 2026-09-01
 
-- Replaced the legacy `KeyCode` keyboard shortcut and `UnityEngine.Input` polling with a configurable Unity Input System control path, and removed the `UnityEngine.InputLegacyModule` dependency.
+- Replaced the legacy `KeyCode` keyboard shortcut and `UnityEngine.Input` polling with configurable Unity Input System control paths, and removed the `UnityEngine.InputLegacyModule` dependency.
 
 ## 1.3.0 - 2026-08-28
 
