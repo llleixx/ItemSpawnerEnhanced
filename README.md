@@ -109,12 +109,13 @@ Settings are stored in `BepInEx/config/com.github.lllei.ItemSpawnerEnhanced.cfg`
 
 | Setting | Default | Purpose |
 | --- | --- | --- |
-| `Controls.KeyboardTogglePath` | `<Keyboard>/f5` | Keyboard control path for opening and closing the item spawner |
-| `Controls.ControllerChordModifierPath` | `<Gamepad>/select` | Controller button held as the shortcut modifier |
-| `Controls.ControllerTogglePath` | `<Gamepad>/rightTrigger` | Controller button pressed to open or close the item spawner |
-| `Filtering.SingleTagSelection` | `true` | Replace the active tag when another tag is selected |
-| `Filtering.TagMatchMode` | `And` | Combine multiple selected tags with `And` or `Or` matching |
-| `Catalog.ShowAllItems` | `false` | Include unused, test, cheat, and internal duplicate prefabs |
+| `Controls.Keyboard Toggle Path` | `<Keyboard>/f5` | Keyboard control path for opening and closing the item spawner |
+| `Controls.Controller Chord Modifier Path` | `<Gamepad>/select` | Controller button held as the shortcut modifier |
+| `Controls.Controller Toggle Path` | `<Gamepad>/rightTrigger` | Controller button pressed to open or close the item spawner |
+| `General.Show All Items` | `false` | Include unused, test, cheat, and internal duplicate prefabs |
+| `General.Single Tag Selection` | `true` | Replace the active tag when another tag is selected |
+| `General.Tag Match Mode` | `And` | Combine multiple selected tags with `And` or `Or` matching |
+| `Favorites.ItemNames` | `[]` | Favorite item names managed automatically by the UI |
 
 Keyboard and controller bindings are Unity Input System control paths. Leave the keyboard path empty to disable keyboard opening. Leave the controller modifier empty for a single-button shortcut; leave the controller toggle path empty to disable controller opening. Favorites are managed by the UI and saved automatically in the same configuration file.
 

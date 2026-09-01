@@ -14,14 +14,14 @@ internal sealed class ModConfig
     {
         KeyboardTogglePath = config.Bind(
             "Controls",
-            "KeyboardTogglePath",
+            "Keyboard Toggle Path",
             "<Keyboard>/f5",
             "Unity Input System control path used to open and close the item spawner with a keyboard. " +
             "Leave empty to disable.");
 
         ControllerChordModifierPath = config.Bind(
             "Controls",
-            "ControllerChordModifierPath",
+            "Controller Chord Modifier Path",
             "<Gamepad>/select",
             "Controller button held as the optional modifier for the item spawner shortcut. " +
             "Default: <Gamepad>/select (Xbox View / PlayStation Share). " +
@@ -29,27 +29,27 @@ internal sealed class ModConfig
 
         ControllerTogglePath = config.Bind(
             "Controls",
-            "ControllerTogglePath",
+            "Controller Toggle Path",
             "<Gamepad>/rightTrigger",
             "Controller button pressed with the optional modifier to open or close the item spawner. " +
             "Default: <Gamepad>/rightTrigger (Xbox RT / PlayStation R2). " +
             "Leave empty to disable.");
 
         _showAllItems = config.Bind(
-            "Catalog",
-            "ShowAllItems",
+            "General",
+            "Show All Items",
             false,
             "Show every item prefab registered by PEAK, including unused, test, cheat, and internal duplicate items.");
 
         _singleTagSelection = config.Bind(
-            "Filtering",
-            "SingleTagSelection",
+            "General",
+            "Single Tag Selection",
             true,
             "Allow only one selected filter tag at a time. Selecting another tag clears the current selection.");
 
         _tagMatchMode = config.Bind(
-            "Filtering",
-            "TagMatchMode",
+            "General",
+            "Tag Match Mode",
             TagMatchMode.And,
             "How selected tags are combined. And requires every selected tag; Or requires any selected tag.");
 
@@ -69,4 +69,5 @@ internal sealed class ModConfig
     public ConfigEntry<bool> SingleTagSelectionEntry => _singleTagSelection;
     public ConfigEntry<TagMatchMode> TagMatchModeEntry => _tagMatchMode;
     public ConfigEntry<string> FavoriteItemNamesEntry => _favoriteItemNames;
+
 }

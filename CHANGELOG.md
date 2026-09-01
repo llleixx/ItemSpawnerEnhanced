@@ -3,6 +3,8 @@
 ## 1.4.0 - 2026-09-01
 
 - Replaced the legacy `KeyCode` keyboard shortcut and `UnityEngine.Input` polling with configurable Unity Input System control paths, and removed the `UnityEngine.InputLegacyModule` dependency.
+- Made control paths free-text settings where empty values disable their corresponding shortcuts.
+- Simplified user-facing configuration into `Controls` and `General` sections with readable, space-separated names while keeping the persisted favorites setting unchanged.
 
 ## 1.3.0 - 2026-08-28
 
