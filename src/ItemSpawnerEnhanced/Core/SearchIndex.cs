@@ -81,9 +81,12 @@ internal sealed class SearchIndex<T>
 
     private sealed class Alias
     {
+        private readonly string[] _words;
+
         public Alias(string value, int boost)
         {
             Spaced = SearchNormalizer.Normalize(value, keepSpaces: true);
+            _words = Spaced.Split(' ');
             Compact = SearchNormalizer.Normalize(value, keepSpaces: false);
             Boost = boost;
         }
@@ -100,8 +103,11 @@ internal sealed class SearchIndex<T>
                 return 10_000 + Boost;
             if (Spaced.StartsWith(spacedQuery, StringComparison.Ordinal) || Compact.StartsWith(compactQuery, StringComparison.Ordinal))
                 return 8_000 + Boost;
-            if (Spaced.Split(' ').Any(token => token.StartsWith(spacedQuery, StringComparison.Ordinal)))
-                return 7_000 + Boost;
+            foreach (string word in _words)
+            {
+                if (word.StartsWith(spacedQuery, StringComparison.Ordinal))
+                    return 7_000 + Boost;
+            }
             if (Spaced.Contains(spacedQuery, StringComparison.Ordinal) || Compact.Contains(compactQuery, StringComparison.Ordinal))
                 return 5_000 + Boost;
 

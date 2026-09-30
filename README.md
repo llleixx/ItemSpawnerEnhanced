@@ -47,8 +47,8 @@ A client-side item spawner for PEAK built for players across **every supported g
 
 | Language | Implementation | Features |
 | --- | --- | --- |
-| 简体中文 | **随主 Mod 提供：**[`ItemSpawnerEnhanced.ChineseSearch.dll`](https://github.com/llleixx/ItemSpawnerEnhanced/tree/main/src/ItemSpawnerEnhanced.ChineseSearch)，借助 [`TinyPinyin`](https://github.com/hstarorg/TinyPinyin.Net) 实现 | 支持**空格全拼**（如 `sheng suo pao`）、**连续全拼**（如 `shengsuopao`）和**拼音首字母**（如 `ssp`）搜索。 |
-| 繁體中文 | **隨主 Mod 提供：**[`ItemSpawnerEnhanced.ChineseSearch.dll`](https://github.com/llleixx/ItemSpawnerEnhanced/tree/main/src/ItemSpawnerEnhanced.ChineseSearch)，借助 [`TinyPinyin`](https://github.com/hstarorg/TinyPinyin.Net) 實現 | 支援**空格全拼**（如 `sheng suo pao`）、**連續全拼**（如 `shengsuopao`）和**拼音首字母**（如 `ssp`）搜尋。 |
+| 简体中文 | **随主 Mod 提供：**[`ItemSpawnerEnhanced.ChineseSearch.dll`](https://github.com/llleixx/ItemSpawnerEnhanced/tree/main/src/ItemSpawnerEnhanced.ChineseSearch)，借助 [`TinyPinyin`](https://github.com/hstarorg/TinyPinyin.Net) 实现 | 支持**空格全拼**（如 `bei bao`）、**连续全拼**（如 `beibao`）和**拼音首字母**（如 `bb`）搜索。 |
+| 繁體中文 | **隨主 Mod 提供：**[`ItemSpawnerEnhanced.ChineseSearch.dll`](https://github.com/llleixx/ItemSpawnerEnhanced/tree/main/src/ItemSpawnerEnhanced.ChineseSearch)，借助 [`TinyPinyin`](https://github.com/hstarorg/TinyPinyin.Net) 實現 | 支援**空格全拼**（如 `bei bao`）、**連續全拼**（如 `beibao`）和**拼音首字母**（如 `bb`）搜尋。 |
 
 ## Why ItemSpawnerEnhanced?
 

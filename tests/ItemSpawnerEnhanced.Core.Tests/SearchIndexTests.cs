@@ -20,7 +20,26 @@ public sealed class SearchIndexTests
         var index = BuildIndex();
 
         Assert.That(index.Search("cannon"), Is.EqualTo(new[] { "rope-cannon" }));
-        Assert.That(index.Search("ssq"), Is.EqualTo(new[] { "rope-cannon" }));
+        Assert.That(index.Search("ssp"), Is.EqualTo(new[] { "rope-cannon" }));
+    }
+
+    [Test]
+    public void Search_RanksWordPrefixesBeforeSubstrings()
+    {
+        var index = new SearchIndex<string>(new[]
+        {
+            ("substring", (IEnumerable<SearchAliasValue>)new[]
+            {
+                new SearchAliasValue("Scannable", SearchAliasPriority.Display)
+            }),
+            ("word-prefix", (IEnumerable<SearchAliasValue>)new[]
+            {
+                new SearchAliasValue("Rope-Cannon", SearchAliasPriority.Display)
+            })
+        });
+
+        Assert.That(index.Search("CAN"), Is.EqualTo(new[] { "word-prefix", "substring" }));
+        Assert.That(index.Search("CAN"), Is.EqualTo(new[] { "word-prefix", "substring" }));
     }
 
     [Test]
@@ -53,7 +72,7 @@ public sealed class SearchIndexTests
         {
             Assert.That(actual.Search(string.Empty), Is.EqualTo(expected.Search(string.Empty)));
             Assert.That(actual.Search("rope"), Is.EqualTo(expected.Search("rope")));
-            Assert.That(actual.Search("ssq"), Is.EqualTo(expected.Search("ssq")));
+            Assert.That(actual.Search("ssp"), Is.EqualTo(expected.Search("ssp")));
             Assert.That(actual.Search("ropw"), Is.EqualTo(expected.Search("ropw")));
         });
     }
@@ -66,10 +85,10 @@ public sealed class SearchIndexTests
             "rope-cannon",
             (IEnumerable<SearchAliasValue>)new[]
             {
-                new SearchAliasValue("绳索枪", SearchAliasPriority.Display),
+                new SearchAliasValue("绳索炮", SearchAliasPriority.Display),
                 new SearchAliasValue("Rope Cannon", SearchAliasPriority.English),
-                new SearchAliasValue("sheng suo qiang", SearchAliasPriority.Provider),
-                new SearchAliasValue("ssq", SearchAliasPriority.Provider)
+                new SearchAliasValue("sheng suo pao", SearchAliasPriority.Provider),
+                new SearchAliasValue("ssp", SearchAliasPriority.Provider)
             }),
         (
             "rope",

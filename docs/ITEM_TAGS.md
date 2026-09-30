@@ -13,15 +13,15 @@ Some prefabs are unavailable through ordinary loot or are internal variants, but
 | `Warp Compass` | Removed from ordinary loot, but its three-use random-player teleport action still works in multiplayer; tagged Consumable + Mystical. |
 | `RescueHook_Infinite` | A functional infinite-use Rescue Claw variant. |
 
-These exceptions are intentionally visible even when `ShowAllItems` is `false`.
+These exceptions are intentionally visible even when `Show All Items` is `false`.
 
 ## Showing every registered prefab
 
 The default catalog hides confirmed unused, test, cheat, and logically duplicated prefabs. The complete database can be enabled in `BepInEx/config/com.github.lllei.ItemSpawnerEnhanced.cfg`:
 
 ```ini
-[Catalog]
-ShowAllItems = true
+[General]
+Show All Items = true
 ```
 
 When enabled, the catalog includes every non-null prefab registered in `ItemDatabase.Instance.Objects`, including all 37 entries in the default-hidden list below. A changed setting is included in catalog cache validation, so the item window rebuilds after the new value is loaded.
@@ -70,7 +70,7 @@ Other has no fixed allowlist. It is assigned only when an item has no reviewed m
 
 ## Default-hidden prefabs
 
-The following sections list **all 37** prefabs hidden when `ShowAllItems` is `false`.
+The following sections list **all 37** prefabs hidden when `Show All Items` is `false`.
 
 ### Unused or unavailable through normal gameplay (7)
 
@@ -144,5 +144,5 @@ The normal black and white chess pieces use prefabs ending in ` B` or ` W` and r
 
 - Reviewed tag mappings use exact, case-sensitive internal prefab names. UI and localized names never participate in classification.
 - Default hiding uses exact, case-insensitive internal prefab names. It does not remove items through fuzzy keywords.
-- `ShowAllItems` controls catalog visibility only; it does not change tags, search, favorites, or spawning behavior.
+- `Show All Items` controls catalog visibility only; it does not change tags, search, favorites, or spawning behavior.
 - Game updates that change internal names, spawn pools, or intended uses should update the mapping, hidden list, this document, and the corresponding tests together.

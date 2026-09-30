@@ -149,9 +149,9 @@ Supported codes are `en`, `fr`, `it`, `de`, `es-ES`, `es-419`, `pt-BR`, `ru`, `u
 The bundled [`ItemSpawnerEnhanced.ChineseSearch`](../src/ItemSpawnerEnhanced.ChineseSearch) extension is a complete working example. It supports `zh-Hans` and `zh-Hant` and turns each displayed item name into three aliases:
 
 ```text
-绳索枪 -> sheng suo qiang
-       -> shengsuoqiang
-       -> ssq
+背包 -> bei bao
+     -> beibao
+     -> bb
 ```
 
 | File | Responsibility |
