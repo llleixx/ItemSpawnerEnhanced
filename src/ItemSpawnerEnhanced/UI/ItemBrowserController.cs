@@ -103,6 +103,17 @@ internal sealed class ItemBrowserController
         ApplySearch(_view.SearchText);
     }
 
+    public void OnSearchChanged(string query)
+    {
+        if (_settings.ClearTagsOnSearch && !string.IsNullOrWhiteSpace(query))
+        {
+            _session.SelectedTags = ItemFilterTag.None;
+            _view.SetSelectedTags(ItemFilterTag.None);
+        }
+
+        ApplySearch(query);
+    }
+
     public void ApplySearch(string query)
     {
         if (IsRebuilding || (_refresh.Pending & RefreshRequirement.SearchIndex) != 0)

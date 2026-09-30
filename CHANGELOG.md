@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0 - 2026-09-30
+
+- Added the default-on `General.Clear Tags On Search` option to clear tag filters when searching, making items easier to find since PEAK has a relatively small item catalog.
+
 ## 1.4.0 - 2026-09-01
 
 - Replaced the legacy `KeyCode` keyboard shortcut and `UnityEngine.Input` polling with configurable Unity Input System control paths, and removed the `UnityEngine.InputLegacyModule` dependency.

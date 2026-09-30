@@ -7,6 +7,7 @@ internal sealed class ModConfig
 {
     private readonly ConfigEntry<bool> _showAllItems;
     private readonly ConfigEntry<bool> _singleTagSelection;
+    private readonly ConfigEntry<bool> _clearTagsOnSearch;
     private readonly ConfigEntry<TagMatchMode> _tagMatchMode;
     private readonly ConfigEntry<string> _favoriteItemNames;
 
@@ -47,6 +48,12 @@ internal sealed class ModConfig
             true,
             "Allow only one selected filter tag at a time. Selecting another tag clears the current selection.");
 
+        _clearTagsOnSearch = config.Bind(
+            "General",
+            "Clear Tags On Search",
+            true,
+            "Clear selected filter tags when entering or editing a non-empty search query. ");
+
         _tagMatchMode = config.Bind(
             "General",
             "Tag Match Mode",
@@ -65,6 +72,7 @@ internal sealed class ModConfig
     public ConfigEntry<string> ControllerTogglePath { get; }
     public bool ShowAllItems => _showAllItems.Value;
     public bool SingleTagSelection => _singleTagSelection.Value;
+    public bool ClearTagsOnSearch => _clearTagsOnSearch.Value;
     public TagMatchMode TagMatchMode => _tagMatchMode.Value;
     public ConfigEntry<bool> SingleTagSelectionEntry => _singleTagSelection;
     public ConfigEntry<TagMatchMode> TagMatchModeEntry => _tagMatchMode;

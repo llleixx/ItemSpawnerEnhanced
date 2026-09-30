@@ -203,7 +203,7 @@ internal sealed class ItemSpawnerWindow : MenuWindow
             Localize);
         _view.Bind(
             () => ToggleWindow(WindowInputSource.Keyboard),
-            _browser.ApplySearch,
+            _browser.OnSearchChanged,
             OnTargetChanged,
             _browser.SetTag,
             _browser.ClearTags);

@@ -47,8 +47,8 @@ A client-side item spawner for PEAK built for players across **every supported g
 
 | Language | Implementation | Features |
 | --- | --- | --- |
-| 简体中文 | **随主 Mod 提供：**[`ItemSpawnerEnhanced.ChineseSearch.dll`](https://github.com/llleixx/ItemSpawnerEnhanced/tree/main/src/ItemSpawnerEnhanced.ChineseSearch)，借助 [`TinyPinyin`](https://github.com/hstarorg/TinyPinyin.Net) 实现 | 支持**空格全拼**（如 `sheng suo qiang`）、**连续全拼**（如 `shengsuoqiang`）和**拼音首字母**（如 `ssq`）搜索。 |
-| 繁體中文 | **隨主 Mod 提供：**[`ItemSpawnerEnhanced.ChineseSearch.dll`](https://github.com/llleixx/ItemSpawnerEnhanced/tree/main/src/ItemSpawnerEnhanced.ChineseSearch)，借助 [`TinyPinyin`](https://github.com/hstarorg/TinyPinyin.Net) 實現 | 支援**空格全拼**（如 `sheng suo qiang`）、**連續全拼**（如 `shengsuoqiang`）和**拼音首字母**（如 `ssq`）搜尋。 |
+| 简体中文 | **随主 Mod 提供：**[`ItemSpawnerEnhanced.ChineseSearch.dll`](https://github.com/llleixx/ItemSpawnerEnhanced/tree/main/src/ItemSpawnerEnhanced.ChineseSearch)，借助 [`TinyPinyin`](https://github.com/hstarorg/TinyPinyin.Net) 实现 | 支持**空格全拼**（如 `sheng suo pao`）、**连续全拼**（如 `shengsuopao`）和**拼音首字母**（如 `ssp`）搜索。 |
+| 繁體中文 | **隨主 Mod 提供：**[`ItemSpawnerEnhanced.ChineseSearch.dll`](https://github.com/llleixx/ItemSpawnerEnhanced/tree/main/src/ItemSpawnerEnhanced.ChineseSearch)，借助 [`TinyPinyin`](https://github.com/hstarorg/TinyPinyin.Net) 實現 | 支援**空格全拼**（如 `sheng suo pao`）、**連續全拼**（如 `shengsuopao`）和**拼音首字母**（如 `ssp`）搜尋。 |
 
 ## Why ItemSpawnerEnhanced?
 
@@ -114,6 +114,7 @@ Settings are stored in `BepInEx/config/com.github.lllei.ItemSpawnerEnhanced.cfg`
 | `Controls.Controller Toggle Path` | `<Gamepad>/rightTrigger` | Controller button pressed to open or close the item spawner |
 | `General.Show All Items` | `false` | Include unused, test, cheat, and internal duplicate prefabs |
 | `General.Single Tag Selection` | `true` | Replace the active tag when another tag is selected |
+| `General.Clear Tags On Search` | `true` | Clear selected tags when entering or editing a non-empty search; clearing the search does not restore them |
 | `General.Tag Match Mode` | `And` | Combine multiple selected tags with `And` or `Or` matching |
 | `Favorites.ItemNames` | `[]` | Favorite item names managed automatically by the UI |
 
