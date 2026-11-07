@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Expanded modded item discovery to include items registered only in PEAK's runtime item lookup.
+
 ## 1.5.0 - 2026-09-30
 
 - Added the default-on `General.Clear Tags On Search` option to clear tag filters when searching, making items easier to find since PEAK has a relatively small item catalog.

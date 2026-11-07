@@ -31,7 +31,7 @@ internal sealed class GameItemCatalog
 
     public bool IsCurrent()
     {
-        Item[] current = ItemDatabase.Instance.Objects.Where(item => item != null).ToArray();
+        Item[] current = CaptureSourceItems();
         return current.SequenceEqual(_sourceItems) && _showAllItems() == _sourceShowAllItems;
     }
 
@@ -48,7 +48,7 @@ internal sealed class GameItemCatalog
         if (timeBudgetMilliseconds <= 0)
             throw new ArgumentOutOfRangeException(nameof(timeBudgetMilliseconds));
 
-        Item[] sourceItems = ItemDatabase.Instance.Objects.Where(item => item != null).ToArray();
+        Item[] sourceItems = CaptureSourceItems();
         bool showAllItems = _showAllItems();
         var items = new List<GameItemRecord>(sourceItems.Length);
         long sliceStarted = Stopwatch.GetTimestamp();
@@ -141,6 +141,17 @@ internal sealed class GameItemCatalog
     }
 
     public IReadOnlyList<GameItemRecord> Search(string query) => _index.Search(query);
+
+    private static Item[] CaptureSourceItems()
+    {
+        ItemDatabase database = ItemDatabase.Instance;
+        // Runtime mods may register items only in the lookup used by the game.
+        return database.Objects
+            .Concat(database.itemLookup.Values)
+            .Where(item => item != null)
+            .Distinct()
+            .ToArray();
+    }
 
     private static string SafeLocalizedName(Item item, string fallback)
     {
