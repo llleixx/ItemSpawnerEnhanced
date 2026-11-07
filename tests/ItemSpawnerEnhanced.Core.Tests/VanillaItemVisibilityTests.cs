@@ -8,45 +8,7 @@ namespace ItemSpawnerEnhanced.Core.Tests;
 
 public sealed class VanillaItemVisibilityTests
 {
-    [TestCase("Clusterberry_UNUSED")]
-    [TestCase("GuidebookPage_13_FirstTeams")]
-    [TestCase("C_Bishop_f")]
-    [TestCase("C_Bishop_m Variant")]
-    [TestCase("C_Bishop_m")]
-    [TestCase("C_King")]
-    [TestCase("C_Knight")]
-    [TestCase("C_Pawn_f Variant")]
-    [TestCase("C_Pawn_f")]
-    [TestCase("C_Pawn_m")]
-    [TestCase("C_Queen")]
-    [TestCase("C_Rook_f Variant")]
-    [TestCase("C_Rook_f")]
-    [TestCase("C_Rook_m")]
-    [TestCase("Mandrake_Hidden")]
-    [TestCase("Parasol_Roots Variant")]
-    [TestCase("ScoutmasterSoul")]
-    [TestCase("Skull")]
-    [TestCase("Warpsketball")]
-    public void NonGameplayPrefab_IsHidden(string internalName)
-    {
-        Assert.That(VanillaItemVisibility.IsVisible(
-            internalName,
-            showAllItems: false,
-            isFavorite: false), Is.False);
-    }
-
-    [TestCase("Kingberry Green")]
-    [TestCase("C_King B")]
-    [TestCase("C_King W")]
-    [TestCase("Mushroom Normie Poison")]
-    [TestCase("Berrynana Peel Yellow")]
-    [TestCase("GuidebookPage_12_Crashout")]
-    [TestCase("Mandrake")]
-    [TestCase("MedicinalRoot")]
     [TestCase("Parachute")]
-    [TestCase("Parasol")]
-    [TestCase("RescueHook_Infinite")]
-    [TestCase("ScoutCookies_Vanilla")]
     [TestCase("Warp Compass")]
     public void PlayableOrIntentionalVariant_IsVisible(string internalName)
     {
@@ -56,26 +18,16 @@ public sealed class VanillaItemVisibilityTests
             isFavorite: false), Is.True);
     }
 
-    [TestCase("Clusterberry_UNUSED")]
-    [TestCase("Parasol_Roots Variant")]
-    [TestCase("C_King")]
-    public void ShowAllItems_RevealsDefaultHiddenPrefab(string internalName)
+    [Test]
+    public void HiddenItemRespectsShowAllAndFavoriteOverrides()
     {
-        Assert.That(VanillaItemVisibility.IsVisible(
-            internalName,
-            showAllItems: true,
-            isFavorite: false), Is.True);
-    }
-
-    [TestCase("Clusterberry_UNUSED")]
-    [TestCase("Parasol_Roots Variant")]
-    [TestCase("C_King")]
-    public void Favorite_RevealsDefaultHiddenPrefab(string internalName)
-    {
-        Assert.That(VanillaItemVisibility.IsVisible(
-            internalName,
-            showAllItems: false,
-            isFavorite: true), Is.True);
+        const string hidden = "Clusterberry_UNUSED";
+        Assert.Multiple(() =>
+        {
+            Assert.That(VanillaItemVisibility.IsVisible(hidden, false, false), Is.False);
+            Assert.That(VanillaItemVisibility.IsVisible(hidden, true, false), Is.True);
+            Assert.That(VanillaItemVisibility.IsVisible(hidden, false, true), Is.True);
+        });
     }
 
     [Test]

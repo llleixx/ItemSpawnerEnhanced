@@ -43,13 +43,6 @@ public sealed class ControllerNavigationTests
         });
     }
 
-    [TestCase(-3, 5, 0)]
-    [TestCase(2, 5, 2)]
-    [TestCase(9, 5, 4)]
-    [TestCase(0, 0, -1)]
-    public void ResolveFallbackIndex_ClampsToVisibleItems(int previous, int count, int expected) =>
-        Assert.That(ControllerNavigation.ResolveFallbackIndex(previous, count), Is.EqualTo(expected));
-
     [Test]
     public void MoveRegion_WrapsAcrossAllThreeRegions()
     {

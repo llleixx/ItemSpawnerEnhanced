@@ -8,11 +8,11 @@ namespace ItemSpawnerEnhanced.Core.Tests;
 
 public sealed class VanillaItemCategoriesTests
 {
-    [TestCase("Food", (int)ItemFilterTag.Food)]
-    [TestCase("Consumable", (int)ItemFilterTag.Consumable)]
-    [TestCase("Equipment", (int)ItemFilterTag.Equipment)]
-    [TestCase("Deployable", (int)ItemFilterTag.Deployable)]
-    [TestCase("Mystical", (int)ItemFilterTag.Mystical)]
+    [TestCase("Food", (int)ItemCategory.Food)]
+    [TestCase("Consumable", (int)ItemCategory.Consumable)]
+    [TestCase("Equipment", (int)ItemCategory.Equipment)]
+    [TestCase("Deployable", (int)ItemCategory.Deployable)]
+    [TestCase("Mystical", (int)ItemCategory.Mystical)]
     public void DocumentationListsEveryReviewedPrefab(string heading, int tagValue)
     {
         string document = File.ReadAllText(FindDocument());
@@ -25,8 +25,8 @@ public sealed class VanillaItemCategoriesTests
         string[] documentedNames = Regex.Matches(section.Groups["body"].Value, @"`([^`]+)`")
             .Select(match => match.Groups[1].Value)
             .ToArray();
-        var tag = (ItemFilterTag)tagValue;
-        string[] reviewedNames = VanillaItemCategories.ReviewedTags
+        var tag = (ItemCategory)tagValue;
+        string[] reviewedNames = VanillaItemCategories.ReviewedCategories
             .Where(pair => pair.Value.HasFlag(tag))
             .Select(pair => pair.Key)
             .ToArray();

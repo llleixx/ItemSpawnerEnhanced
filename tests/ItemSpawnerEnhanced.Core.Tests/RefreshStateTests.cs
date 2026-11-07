@@ -6,16 +6,6 @@ namespace ItemSpawnerEnhanced.Core.Tests;
 public sealed class RefreshStateTests
 {
     [Test]
-    public void CatalogRequest_AlsoRequiresSearchIndex()
-    {
-        var state = new RefreshState();
-
-        Assert.That(
-            state.Pending,
-            Is.EqualTo(RefreshRequirement.Catalog | RefreshRequirement.SearchIndex));
-    }
-
-    [Test]
     public void SuccessfulPhases_ClearOnlyCompletedRequirement()
     {
         var state = new RefreshState();

@@ -5,12 +5,14 @@ namespace ItemSpawnerEnhanced.UI;
 internal static class RuntimeUiAssets
 {
     private static Texture2D? _heartTexture;
+    private static Texture2D? _puzzleTexture;
     private static Texture2D? _filterClearTexture;
     private static Texture2D? _searchClearTexture;
     private static Sprite? _roundedRectSprite;
     private static Sprite? _roundedOutlineSprite;
 
     public static Texture2D HeartTexture => _heartTexture ??= CreateHeartTexture();
+    public static Texture2D PuzzleTexture => _puzzleTexture ??= CreatePuzzleTexture();
     public static Texture2D FilterClearTexture => _filterClearTexture ??= CreateFilterClearTexture();
     public static Texture2D SearchClearTexture => _searchClearTexture ??= CreateSearchClearTexture();
     public static Sprite RoundedRectSprite => _roundedRectSprite ??= CreateRoundedRectSprite();
@@ -35,6 +37,7 @@ internal static class RuntimeUiAssets
         }
 
         DestroyTexture(ref _heartTexture);
+        DestroyTexture(ref _puzzleTexture);
         DestroyTexture(ref _filterClearTexture);
         DestroyTexture(ref _searchClearTexture);
     }
@@ -66,6 +69,50 @@ internal static class RuntimeUiAssets
                         float normalizedY = (pointY - 14.5f) / 11f;
                         float sum = normalizedX * normalizedX + normalizedY * normalizedY - 1f;
                         if (sum * sum * sum - normalizedX * normalizedX * normalizedY * normalizedY * normalizedY <= 0f)
+                            insideSamples++;
+                    }
+                }
+
+                byte alpha = (byte)(255 * insideSamples / (samplesPerAxis * samplesPerAxis));
+                pixels[y * size + x] = new Color32(255, 255, 255, alpha);
+            }
+        }
+
+        texture.SetPixels32(pixels);
+        texture.Apply(updateMipmaps: false, makeNoLongerReadable: true);
+        return texture;
+    }
+
+    private static Texture2D CreatePuzzleTexture()
+    {
+        const int size = 32;
+        const int samplesPerAxis = 4;
+        var texture = new Texture2D(size, size, TextureFormat.RGBA32, mipChain: false)
+        {
+            name = "ItemSpawnerEnhanced Puzzle",
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp,
+            hideFlags = HideFlags.HideAndDontSave
+        };
+        var pixels = new Color32[size * size];
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                int insideSamples = 0;
+                for (int sampleY = 0; sampleY < samplesPerAxis; sampleY++)
+                {
+                    for (int sampleX = 0; sampleX < samplesPerAxis; sampleX++)
+                    {
+                        Vector2 point = new(
+                            x + (sampleX + 0.5f) / samplesPerAxis,
+                            y + (sampleY + 0.5f) / samplesPerAxis);
+                        bool body = RoundedRectDistance(point, size, 9f, 7f) <= 0;
+                        bool tabs = (point - new Vector2(16, 25)).sqrMagnitude <= 16 ||
+                                    (point - new Vector2(25, 16)).sqrMagnitude <= 16;
+                        bool sockets = (point - new Vector2(7, 16)).sqrMagnitude <= 16 ||
+                                       (point - new Vector2(16, 7)).sqrMagnitude <= 16;
+                        if ((body || tabs) && !sockets)
                             insideSamples++;
                     }
                 }

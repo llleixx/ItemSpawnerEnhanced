@@ -11,7 +11,8 @@ internal static class ItemBrowserControlFactory
     public static TagToggle CreateTagToggle(
         Transform parent,
         TMP_FontAsset font,
-        ItemFilterTag tag)
+        ItemFilterTag tag,
+        float iconTagWidth)
     {
         RectTransform root = RuntimeUiFactory.CreateRect(
             tag.ToString(), parent, typeof(Image), typeof(Toggle), typeof(LayoutElement));
@@ -25,30 +26,32 @@ internal static class ItemBrowserControlFactory
         toggle.targetGraphic = background;
         toggle.graphic = null;
 
-        TextMeshProUGUI label = RuntimeUiFactory.CreateText(
-            "Label", root, font, 17, RuntimeUiFactory.TextPrimary, TextAlignmentOptions.Center);
-        label.maxVisibleLines = 2;
-        RawImage? heart = null;
-        if (tag == ItemFilterTag.Favorite)
+        TextMeshProUGUI? label = null;
+        RawImage? icon = null;
+        if (tag is ItemFilterTag.Favorite or ItemFilterTag.Modded)
         {
-            RectTransform heartRect = RuntimeUiFactory.CreateRect("Heart", root, typeof(RawImage));
-            heartRect.anchorMin = new Vector2(0, 0.5f);
-            heartRect.anchorMax = new Vector2(0, 0.5f);
-            heartRect.pivot = new Vector2(0, 0.5f);
-            heartRect.anchoredPosition = new Vector2(11, 0);
-            heartRect.sizeDelta = new Vector2(18, 18);
-            heart = heartRect.GetComponent<RawImage>();
-            heart.texture = RuntimeUiAssets.HeartTexture;
-            heart.color = RuntimeUiFactory.TextPrimary;
-            heart.raycastTarget = false;
-            RuntimeUiFactory.Stretch(label.rectTransform, 28, 5, 2, 2);
+            layout.minWidth = iconTagWidth;
+            layout.preferredWidth = iconTagWidth;
+            layout.flexibleWidth = 0;
+            RectTransform iconRect = RuntimeUiFactory.CreateRect("Icon", root, typeof(RawImage));
+            iconRect.anchorMin = iconRect.anchorMax = iconRect.pivot = new Vector2(0.5f, 0.5f);
+            iconRect.sizeDelta = new Vector2(26, 26);
+            icon = iconRect.GetComponent<RawImage>();
+            icon.texture = tag == ItemFilterTag.Favorite
+                ? RuntimeUiAssets.HeartTexture : RuntimeUiAssets.PuzzleTexture;
+            icon.color = RuntimeUiFactory.TextPrimary;
+            icon.raycastTarget = false;
         }
         else
         {
+            label = RuntimeUiFactory.CreateText(
+                "Label", root, font, 17, RuntimeUiFactory.TextPrimary, TextAlignmentOptions.Center);
+            label.maxVisibleLines = 1;
+            label.textWrappingMode = TextWrappingModes.NoWrap;
             RuntimeUiFactory.Stretch(label.rectTransform, 5, 5, 2, 2);
         }
 
-        var result = new TagToggle(tag, toggle, background, label, heart);
+        var result = new TagToggle(tag, toggle, background, label, icon);
         result.SetActive(false);
         return result;
     }
@@ -127,6 +130,20 @@ internal static class ItemBrowserControlFactory
         favoriteHeartImage.color = RuntimeUiFactory.Favorite;
         favoriteHeartImage.raycastTarget = false;
         favoriteMarker.gameObject.SetActive(isFavorite);
+
+        if (record.Origin == ItemOrigin.Modded)
+        {
+            RectTransform moddedMarker = RuntimeUiFactory.CreateRect("Modded", root);
+            moddedMarker.anchorMin = moddedMarker.anchorMax = moddedMarker.pivot = new Vector2(0, 1);
+            moddedMarker.anchoredPosition = new Vector2(6, -6);
+            moddedMarker.sizeDelta = new Vector2(32, 32);
+            RectTransform puzzle = RuntimeUiFactory.CreateRect("Puzzle", moddedMarker, typeof(RawImage));
+            RuntimeUiFactory.Stretch(puzzle, 3, 3, 3, 3);
+            RawImage puzzleImage = puzzle.GetComponent<RawImage>();
+            puzzleImage.texture = RuntimeUiAssets.PuzzleTexture;
+            puzzleImage.color = new Color32(0x7D, 0xBB, 0xE6, 0xFF);
+            puzzleImage.raycastTarget = false;
+        }
 
         ItemFavoriteTrigger favoriteTrigger = root.gameObject.AddComponent<ItemFavoriteTrigger>();
         favoriteTrigger.Configure(onFavorite);

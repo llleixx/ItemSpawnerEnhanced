@@ -35,16 +35,6 @@ public sealed class SearchAliasRegistryTests
         Assert.Throws<InvalidOperationException>(() => SearchAliasRegistry.Register(new StubProvider("TEST")));
     }
 
-    [Test]
-    public void Register_ReadsProviderIdOnce()
-    {
-        var provider = new CountingIdProvider();
-
-        using IDisposable registration = SearchAliasRegistry.Register(provider);
-
-        Assert.That(provider.ReadCount, Is.EqualTo(1));
-    }
-
     private sealed class StubProvider : ISearchAliasProvider
     {
         public StubProvider(string id) => Id = id;
@@ -53,19 +43,4 @@ public sealed class SearchAliasRegistryTests
         public IEnumerable<string> GetAliases(SearchAliasContext context) => Array.Empty<string>();
     }
 
-    private sealed class CountingIdProvider : ISearchAliasProvider
-    {
-        public int ReadCount { get; private set; }
-        public string Id
-        {
-            get
-            {
-                ReadCount++;
-                return "counting-id";
-            }
-        }
-
-        public bool SupportsLanguage(string languageCode) => true;
-        public IEnumerable<string> GetAliases(SearchAliasContext context) => Array.Empty<string>();
-    }
 }

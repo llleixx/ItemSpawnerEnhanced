@@ -30,7 +30,7 @@ A client-side item spawner for PEAK built for players across **every supported g
 - **Smart targeting:** Spawn for yourself while alive or automatically target the Scout you are spectating after death.
 - **Any Scout:** Select any available Scout in the room from the target dropdown.
 - **Modded item support:** Discover items from both PEAK's item database list and its runtime item lookup, including items added by other mods.
-- **Tag filtering:** Filter by Food, Consumables, Equipment, Deployables, Mystical, Other, or Favorites. Tags are single-select by default, with optional multi-select AND/OR matching.
+- **Tag filtering:** Filter by Modded items, Food, Consumables, Equipment, Deployables, Mystical, Other, or Favorites. Tags are single-select by default, with optional multi-select AND/OR matching. Favorites and Modded use compact heart and puzzle icons.
 - **Curated catalog:** Hide known unused and internal duplicate prefabs by default, with an option to reveal every registered item.
 - **Persistent favorites:** Right-click an item to favorite it, mark its tile with a heart, and filter favorites like any other tag.
 - **Fully localized UI:** Use interface text for every language currently supported by PEAK.
@@ -89,6 +89,7 @@ Press `F5`, or hold `View/Share` and press `RT/R2`, to open the item spawner.
 
 - Click an item to spawn it, or hold the left mouse button to spawn repeatedly.
 - Right-click an item to favorite or unfavorite it.
+- Modded items have a puzzle marker in the top-left corner; favorites have a heart in the top-right corner.
 - Keyboard opening focuses search; controller opening focuses the first visible item.
 
 ### Controller controls

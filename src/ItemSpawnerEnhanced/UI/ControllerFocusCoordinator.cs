@@ -558,6 +558,7 @@ internal sealed class ControllerFocusCoordinator
                 break;
             case ControllerFocusKind.Tag when location.Index >= 0 && location.Index < _view.TagToggles.Count:
                 _view.TagToggles[location.Index].SetFocused(true);
+                _view.TagToggles[location.Index].ShowControllerTooltip();
                 break;
             case ControllerFocusKind.ClearTags when _view.TagClear.Enabled:
                 _view.TagClear.SetFocused(true);

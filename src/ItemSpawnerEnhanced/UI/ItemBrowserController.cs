@@ -121,7 +121,8 @@ internal sealed class ItemBrowserController
 
         IReadOnlyList<GameItemRecord> results = _catalog.Search(query)
             .Where(record => ItemFilterMatcher.Matches(
-                record.Tags,
+                record.Categories,
+                record.Origin,
                 _favorites.IsFavorite(record.Item.name),
                 _session.SelectedTags,
                 _settings.TagMatchMode))

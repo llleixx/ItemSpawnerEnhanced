@@ -5,12 +5,12 @@ namespace ItemSpawnerEnhanced;
 
 internal static class ItemCategoryResolver
 {
-    public static ItemFilterTag Resolve(Item item)
+    public static ItemCategory Resolve(Item item)
     {
-        ItemFilterTag tags = VanillaItemCategories.Resolve(item.name);
+        ItemCategory tags = VanillaItemCategories.Resolve(item.name);
 
         if (item.itemTags.HasFlag(Item.ItemTags.Mystical))
-            tags |= ItemFilterTag.Mystical;
+            tags |= ItemCategory.Mystical;
 
         bool consumes = item.GetComponentsInChildren<Action_Consume>(includeInactive: true).Length > 0;
         bool modifiesHunger = item.GetComponentsInChildren<Action_ModifyStatus>(includeInactive: true)
@@ -25,12 +25,6 @@ internal static class ItemCategoryResolver
             tags,
             consumes,
             hasFoodTag || restoresHunger || (consumes && modifiesHunger));
-        tags = ItemCategoryPolicy.NormalizeConsumableTag(tags);
-        tags = ItemCategoryPolicy.NormalizeEquipmentTag(tags);
-
-        if (tags == ItemFilterTag.None)
-            tags = ItemFilterTag.Other;
-
-        return tags;
+        return ItemCategoryPolicy.Normalize(tags);
     }
 }

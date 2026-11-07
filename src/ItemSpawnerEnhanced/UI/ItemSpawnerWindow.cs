@@ -307,6 +307,7 @@ internal sealed class ItemSpawnerWindow : MenuWindow
             tag => Localize(tag switch
             {
                 ItemFilterTag.Favorite => "tagFavorite",
+                ItemFilterTag.Modded => "tagModded",
                 ItemFilterTag.Food => "tagFood",
                 ItemFilterTag.Consumable => "tagConsumable",
                 ItemFilterTag.Equipment => "tagEquipment",

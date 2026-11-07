@@ -181,7 +181,7 @@ internal sealed class ItemSpawnerView
         foreach (TagToggle tagToggle in _tagToggles)
         {
             string label = tagLabel(tagToggle.Tag);
-            tagToggle.Label.text = label;
+            tagToggle.SetLabel(label);
         }
     }
 

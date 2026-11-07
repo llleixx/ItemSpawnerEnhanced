@@ -68,6 +68,16 @@ internal sealed class ItemNameTooltip : MonoBehaviour
             Hide();
     }
 
+    public void UpdateText(object owner, string text)
+    {
+        if (!ReferenceEquals(_owner, owner))
+            return;
+
+        _text = text;
+        if (_visible)
+            Show();
+    }
+
     public void Hide()
     {
         _owner = null;
@@ -167,7 +177,11 @@ internal sealed class ItemNameTooltipTrigger : MonoBehaviour, IPointerEnterHandl
         _text = text;
     }
 
-    public void SetText(string text) => _text = text;
+    public void SetText(string text)
+    {
+        _text = text;
+        _tooltip.UpdateText(this, text);
+    }
 
     public void OnPointerEnter(PointerEventData eventData) => _tooltip.Begin(this, _text, eventData.position);
 

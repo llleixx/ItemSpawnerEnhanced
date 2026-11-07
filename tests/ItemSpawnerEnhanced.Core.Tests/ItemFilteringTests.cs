@@ -56,7 +56,8 @@ public sealed class ItemFilteringTests
     public void NoSelectedTags_MatchesEveryItem()
     {
         Assert.That(ItemFilterMatcher.Matches(
-            ItemFilterTag.Other,
+            ItemCategory.Other,
+            ItemOrigin.Vanilla,
             isFavorite: false,
             ItemFilterTag.None,
             TagMatchMode.And), Is.True);
@@ -66,12 +67,12 @@ public sealed class ItemFilteringTests
     public void And_RequiresEverySelectedTag()
     {
         ItemFilterTag selected = ItemFilterTag.Favorite | ItemFilterTag.Equipment | ItemFilterTag.Mystical;
-        ItemFilterTag item = ItemFilterTag.Equipment | ItemFilterTag.Mystical;
+        ItemCategory item = ItemCategory.Equipment | ItemCategory.Mystical;
 
         Assert.Multiple(() =>
         {
-            Assert.That(ItemFilterMatcher.Matches(item, true, selected, TagMatchMode.And), Is.True);
-            Assert.That(ItemFilterMatcher.Matches(item, false, selected, TagMatchMode.And), Is.False);
+            Assert.That(ItemFilterMatcher.Matches(item, ItemOrigin.Vanilla, true, selected, TagMatchMode.And), Is.True);
+            Assert.That(ItemFilterMatcher.Matches(item, ItemOrigin.Vanilla, false, selected, TagMatchMode.And), Is.False);
         });
     }
 
@@ -83,12 +84,14 @@ public sealed class ItemFilteringTests
         Assert.Multiple(() =>
         {
             Assert.That(ItemFilterMatcher.Matches(
-                ItemFilterTag.Food,
+                ItemCategory.Food,
+                ItemOrigin.Vanilla,
                 false,
                 selected,
                 TagMatchMode.Or), Is.True);
             Assert.That(ItemFilterMatcher.Matches(
-                ItemFilterTag.Deployable,
+                ItemCategory.Deployable,
+                ItemOrigin.Vanilla,
                 false,
                 selected,
                 TagMatchMode.Or), Is.False);
@@ -99,7 +102,8 @@ public sealed class ItemFilteringTests
     public void Favorite_IsAppliedAsADynamicTag()
     {
         Assert.That(ItemFilterMatcher.Matches(
-            ItemFilterTag.Other,
+            ItemCategory.Other,
+            ItemOrigin.Vanilla,
             true,
             ItemFilterTag.Favorite,
             TagMatchMode.And), Is.True);
@@ -108,33 +112,33 @@ public sealed class ItemFilteringTests
     [Test]
     public void Food_IsNeverAlsoTaggedAsConsumable()
     {
-        ItemFilterTag tags = ItemCategoryPolicy.ApplyConsumptionTags(
-            ItemFilterTag.Food | ItemFilterTag.Mystical,
+        ItemCategory tags = ItemCategoryPolicy.ApplyConsumptionTags(
+            ItemCategory.Food | ItemCategory.Mystical,
             consumes: true,
             hasFoodEvidence: false);
 
-        Assert.That(tags, Is.EqualTo(ItemFilterTag.Food | ItemFilterTag.Mystical));
+        Assert.That(tags, Is.EqualTo(ItemCategory.Food | ItemCategory.Mystical));
     }
 
     [Test]
     public void FoodEvidence_ReplacesAnExistingConsumableTag()
     {
-        ItemFilterTag tags = ItemCategoryPolicy.ApplyConsumptionTags(
-            ItemFilterTag.Consumable,
+        ItemCategory tags = ItemCategoryPolicy.ApplyConsumptionTags(
+            ItemCategory.Consumable,
             consumes: true,
             hasFoodEvidence: true);
 
-        Assert.That(tags, Is.EqualTo(ItemFilterTag.Food));
+        Assert.That(tags, Is.EqualTo(ItemCategory.Food));
     }
 
-    [TestCase((int)ItemFilterTag.Food)]
-    [TestCase((int)ItemFilterTag.Deployable)]
-    [TestCase((int)(ItemFilterTag.Food | ItemFilterTag.Deployable | ItemFilterTag.Mystical))]
+    [TestCase((int)ItemCategory.Food)]
+    [TestCase((int)ItemCategory.Deployable)]
+    [TestCase((int)(ItemCategory.Food | ItemCategory.Deployable | ItemCategory.Mystical))]
     public void FoodAndDeployableItems_AreNeverAlsoTaggedAsEquipment(int itemTagValue)
     {
-        var itemTags = (ItemFilterTag)itemTagValue;
-        ItemFilterTag tags = ItemCategoryPolicy.NormalizeEquipmentTag(
-            itemTags | ItemFilterTag.Equipment);
+        var itemTags = (ItemCategory)itemTagValue;
+        ItemCategory tags = ItemCategoryPolicy.Normalize(
+            itemTags | ItemCategory.Equipment);
 
         Assert.That(tags, Is.EqualTo(itemTags));
     }
@@ -142,38 +146,63 @@ public sealed class ItemFilteringTests
     [Test]
     public void Deployable_IsNeverAlsoTaggedAsConsumable()
     {
-        ItemFilterTag tags = ItemCategoryPolicy.ApplyConsumptionTags(
-            ItemFilterTag.Deployable | ItemFilterTag.Mystical,
+        ItemCategory tags = ItemCategoryPolicy.ApplyConsumptionTags(
+            ItemCategory.Deployable | ItemCategory.Mystical,
             consumes: true,
             hasFoodEvidence: false);
 
-        tags = ItemCategoryPolicy.NormalizeConsumableTag(tags);
+        tags = ItemCategoryPolicy.Normalize(tags);
 
-        Assert.That(tags, Is.EqualTo(ItemFilterTag.Deployable | ItemFilterTag.Mystical));
+        Assert.That(tags, Is.EqualTo(ItemCategory.Deployable | ItemCategory.Mystical));
     }
 
-    [TestCase("Bugle_Magic", (int)ItemFilterTag.Consumable)]
-    [TestCase("Bugle_Scoutmaster Variant", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
-    [TestCase("Candle", (int)ItemFilterTag.Consumable)]
-    [TestCase("Lantern", (int)ItemFilterTag.Consumable)]
-    [TestCase("Lantern_Faerie", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
-    [TestCase("RescueHook", (int)ItemFilterTag.Consumable)]
-    [TestCase("RescueHook_Infinite", (int)ItemFilterTag.Consumable)]
-    [TestCase("Torch", (int)ItemFilterTag.Consumable)]
-    [TestCase("Warp Compass", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
-    [TestCase("AncientIdol", (int)(ItemFilterTag.Equipment | ItemFilterTag.Mystical))]
-    [TestCase("BookOfBones", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
-    [TestCase("RitualDagger", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
-    [TestCase("AntiZooka", (int)(ItemFilterTag.Consumable | ItemFilterTag.Mystical))]
+    [TestCase("Bugle_Scoutmaster Variant", (int)(ItemCategory.Consumable | ItemCategory.Mystical))]
+    [TestCase("AncientIdol", (int)(ItemCategory.Equipment | ItemCategory.Mystical))]
+    [TestCase("RitualDagger", (int)(ItemCategory.Consumable | ItemCategory.Mystical))]
     public void ReviewedPrefabs_HaveExpectedTags(string prefabName, int expectedTagValue)
     {
-        var expected = (ItemFilterTag)expectedTagValue;
+        var expected = (ItemCategory)expectedTagValue;
         Assert.That(VanillaItemCategories.Resolve(prefabName), Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void ModdedAndFavoriteUseExistingAndOrRules()
+    {
+        ItemFilterTag selected = ItemFilterTag.Modded | ItemFilterTag.Favorite;
+        Assert.Multiple(() =>
+        {
+            Assert.That(ItemFilterMatcher.Matches(ItemCategory.Food, ItemOrigin.Modded, true,
+                selected, TagMatchMode.And), Is.True);
+            Assert.That(ItemFilterMatcher.Matches(ItemCategory.Food, ItemOrigin.Vanilla, true,
+                selected, TagMatchMode.And), Is.False);
+            Assert.That(ItemFilterMatcher.Matches(ItemCategory.Food, ItemOrigin.Modded, false,
+                selected, TagMatchMode.Or), Is.True);
+            Assert.That(ItemFilterMatcher.Matches(ItemCategory.Food, ItemOrigin.Unknown, true,
+                selected, TagMatchMode.Or), Is.True);
+            Assert.That(ItemFilterMatcher.Matches(ItemCategory.Food, ItemOrigin.Unknown, false,
+                ItemFilterTag.Modded, TagMatchMode.And), Is.False);
+        });
+    }
+
+    [Test]
+    public void OriginPreservesCategoryAndOtherFallback()
+    {
+        ItemCategory other = ItemCategoryPolicy.Normalize(ItemCategory.None);
+        Assert.Multiple(() =>
+        {
+            Assert.That(other, Is.EqualTo(ItemCategory.Other));
+            Assert.That(ItemFilterMatcher.Matches(other, ItemOrigin.Modded, false,
+                ItemFilterTag.Other | ItemFilterTag.Modded, TagMatchMode.And), Is.True);
+            Assert.That(ItemFilterMatcher.Matches(ItemCategory.Food, ItemOrigin.Modded, false,
+                ItemFilterTag.Food | ItemFilterTag.Modded, TagMatchMode.And), Is.True);
+            Assert.That(ItemFilterMatcher.Matches(other, ItemOrigin.Unknown, false,
+                ItemFilterTag.Other, TagMatchMode.And), Is.True);
+        });
     }
 
     [Test]
     public void ReviewedPrefabMatching_IsExact()
     {
-        Assert.That(VanillaItemCategories.Resolve("bookofbones"), Is.EqualTo(ItemFilterTag.None));
+        Assert.That(VanillaItemCategories.Resolve("bookofbones"), Is.EqualTo(ItemCategory.None));
     }
 }

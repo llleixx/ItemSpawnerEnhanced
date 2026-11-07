@@ -24,7 +24,7 @@ The default catalog hides confirmed unused, test, cheat, and logically duplicate
 Show All Items = true
 ```
 
-When enabled, the catalog includes every non-null prefab registered in `ItemDatabase.Instance.Objects`, including all 37 entries in the default-hidden list below. A changed setting is included in catalog cache validation, so the item window rebuilds after the new value is loaded.
+When enabled, the catalog includes every non-null prefab registered in `ItemDatabase.Instance.Objects` or `itemLookup`, including all 37 entries in the default-hidden list below. A changed setting is included in catalog cache validation, so the item window rebuilds after the new value is loaded.
 
 ## Tag rules
 
@@ -37,6 +37,11 @@ When enabled, the catalog includes every non-null prefab registered in `ItemData
 | Mystical | Assigned through the reviewed vanilla mapping or the native `Mystical` item flag. |
 | Other | Assigned only when no other static tag was found. |
 | Favorite | Added dynamically after the user favorites an item; it is not an intrinsic item classification. |
+| Modded | Added to registered prefabs whose reference is absent from the original `Resources/0_Items` prefabs. It coexists with all item categories, including Other. |
+
+Changes to an original prefab's values or textures do not make it Modded; separately registered clones do.
+
+Favorites and Modded use icon-only heart and puzzle filters with localized tooltips on mouse hover or controller focus. Item tiles show the Modded puzzle in the top-left corner and the favorite heart in the top-right corner.
 
 Food and Consumable are mutually exclusive. Once an item is identified as Food, the Consumable tag is removed. Deployable also removes Consumable and Equipment, so placement actions are not treated as item consumption. Other combinations are intentional: for example, the automatic Parachute is Consumable + Equipment, while Warp Compass is Consumable + Mystical.
 

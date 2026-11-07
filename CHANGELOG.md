@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Expanded modded item discovery to include items registered only in PEAK's runtime item lookup.
+- Added a Modded filter and puzzle markers, and changed Favorites to an icon-only filter with localized tooltips for both icon filters.
 
 ## 1.5.0 - 2026-09-30
 

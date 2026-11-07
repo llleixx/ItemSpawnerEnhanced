@@ -7,12 +7,13 @@ internal enum ItemFilterTag
 {
     None = 0,
     Favorite = 1 << 0,
-    Food = 1 << 1,
-    Consumable = 1 << 2,
-    Equipment = 1 << 3,
-    Deployable = 1 << 4,
-    Mystical = 1 << 5,
-    Other = 1 << 6
+    Food = (int)ItemCategory.Food,
+    Consumable = (int)ItemCategory.Consumable,
+    Equipment = (int)ItemCategory.Equipment,
+    Deployable = (int)ItemCategory.Deployable,
+    Mystical = (int)ItemCategory.Mystical,
+    Other = (int)ItemCategory.Other,
+    Modded = 1 << 7
 }
 
 internal enum TagMatchMode
@@ -45,7 +46,8 @@ internal static class ItemTagSelection
 internal static class ItemFilterMatcher
 {
     public static bool Matches(
-        ItemFilterTag itemTags,
+        ItemCategory categories,
+        ItemOrigin origin,
         bool isFavorite,
         ItemFilterTag selectedTags,
         TagMatchMode matchMode)
@@ -53,6 +55,9 @@ internal static class ItemFilterMatcher
         if (selectedTags == ItemFilterTag.None)
             return true;
 
+        ItemFilterTag itemTags = (ItemFilterTag)categories;
+        if (origin == ItemOrigin.Modded)
+            itemTags |= ItemFilterTag.Modded;
         if (isFavorite)
             itemTags |= ItemFilterTag.Favorite;
 

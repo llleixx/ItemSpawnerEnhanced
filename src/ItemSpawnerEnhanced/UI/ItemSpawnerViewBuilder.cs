@@ -69,12 +69,13 @@ internal static class ItemSpawnerViewBuilder
         tagLayout.spacing = 8;
         tagLayout.childControlWidth = true;
         tagLayout.childControlHeight = true;
-        tagLayout.childForceExpandWidth = true;
+        tagLayout.childForceExpandWidth = false;
         tagLayout.childForceExpandHeight = true;
 
         ItemFilterTag[] filterTags =
         {
             ItemFilterTag.Favorite,
+            ItemFilterTag.Modded,
             ItemFilterTag.Food,
             ItemFilterTag.Consumable,
             ItemFilterTag.Equipment,
@@ -82,8 +83,12 @@ internal static class ItemSpawnerViewBuilder
             ItemFilterTag.Mystical,
             ItemFilterTag.Other
         };
+        // The pair of icon tags replaces one original text tag, including its inner gap.
+        int originalTagCount = filterTags.Length - 1;
+        float textTagWidth = (tagBar.sizeDelta.x - (originalTagCount - 1) * tagLayout.spacing) / originalTagCount;
+        float iconTagWidth = (textTagWidth - tagLayout.spacing) / 2;
         TagToggle[] tagToggles = filterTags
-            .Select(tag => ItemBrowserControlFactory.CreateTagToggle(tagBar, font, tag))
+            .Select(tag => ItemBrowserControlFactory.CreateTagToggle(tagBar, font, tag, iconTagWidth))
             .ToArray();
 
         (Button tagClear, RawImage tagClearIcon) = RuntimeUiFactory.CreateFilterClearButton(panel);
@@ -114,6 +119,8 @@ internal static class ItemSpawnerViewBuilder
         scrollRect.offsetMax = new Vector2(-24, -221);
 
         ItemNameTooltip tooltip = ItemBrowserControlFactory.CreateItemTooltip(panel, font);
+        foreach (TagToggle tagToggle in tagToggles)
+            tagToggle.ConfigureTooltip(tooltip);
         ItemNameTooltipTrigger tagClearTooltip = tagClear.gameObject.AddComponent<ItemNameTooltipTrigger>();
         tagClearTooltip.Configure(tooltip, string.Empty);
         return new ItemSpawnerViewReferences(

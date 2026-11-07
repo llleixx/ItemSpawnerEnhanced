@@ -2,27 +2,24 @@ namespace ItemSpawnerEnhanced.Core;
 
 internal static class ItemCategoryPolicy
 {
-    public static ItemFilterTag ApplyConsumptionTags(
-        ItemFilterTag tags,
+    public static ItemCategory ApplyConsumptionTags(
+        ItemCategory tags,
         bool consumes,
         bool hasFoodEvidence)
     {
-        if (hasFoodEvidence || tags.HasFlag(ItemFilterTag.Food))
-            return (tags | ItemFilterTag.Food) & ~ItemFilterTag.Consumable;
+        if (hasFoodEvidence || tags.HasFlag(ItemCategory.Food))
+            return (tags | ItemCategory.Food) & ~ItemCategory.Consumable;
 
-        return consumes ? tags | ItemFilterTag.Consumable : tags;
+        return consumes ? tags | ItemCategory.Consumable : tags;
     }
 
-    public static ItemFilterTag NormalizeEquipmentTag(ItemFilterTag tags)
+    public static ItemCategory Normalize(ItemCategory tags)
     {
-        const ItemFilterTag incompatibleTags = ItemFilterTag.Food | ItemFilterTag.Deployable;
-        return (tags & incompatibleTags) != 0 ? tags & ~ItemFilterTag.Equipment : tags;
-    }
-
-    public static ItemFilterTag NormalizeConsumableTag(ItemFilterTag tags)
-    {
-        return tags.HasFlag(ItemFilterTag.Deployable)
-            ? tags & ~ItemFilterTag.Consumable
-            : tags;
+        if (tags.HasFlag(ItemCategory.Deployable))
+            tags &= ~ItemCategory.Consumable;
+        const ItemCategory incompatibleTags = ItemCategory.Food | ItemCategory.Deployable;
+        if ((tags & incompatibleTags) != 0)
+            tags &= ~ItemCategory.Equipment;
+        return tags == ItemCategory.None ? ItemCategory.Other : tags;
     }
 }
